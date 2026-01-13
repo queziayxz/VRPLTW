@@ -139,7 +139,6 @@ private:
 	int nodeUPrevIndex, nodeUIndex, nodeXIndex, nodeXNextIndex ;	
 	int nodeVPrevIndex, nodeVIndex, nodeYIndex, nodeYNextIndex ;	
 	double loadU, loadX, loadV, loadY;
-	double serviceU, serviceX, serviceV, serviceY;
 	double penaltyCapacityLS, penaltyDurationLS ;
 	bool intraRouteMove ;
 

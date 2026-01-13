@@ -9,13 +9,11 @@ void Individual::evaluateCompleteCost(const Params & params)
 		{
 			double distance = params.timeCost[0][chromR[r][0]];
 			double load = params.cli[chromR[r][0]].demand;
-			double service = params.cli[chromR[r][0]].serviceDuration;
 			predecessors[chromR[r][0]] = 0;
 			for (int i = 1; i < (int)chromR[r].size(); i++)
 			{
 				distance += params.timeCost[chromR[r][i-1]][chromR[r][i]];
 				load += params.cli[chromR[r][i]].demand;
-				service += params.cli[chromR[r][i]].serviceDuration;
 				predecessors[chromR[r][i]] = chromR[r][i-1];
 				successors[chromR[r][i-1]] = chromR[r][i];
 			}
@@ -24,7 +22,7 @@ void Individual::evaluateCompleteCost(const Params & params)
 			eval.distance += distance;
 			eval.nbRoutes++;
 			if (load > params.vehicleCapacity) eval.capacityExcess += load - params.vehicleCapacity;
-			if (distance + service > params.durationLimit) eval.durationExcess += distance + service - params.durationLimit;
+			if (distance > params.durationLimit) eval.durationExcess += distance - params.durationLimit;
 		}
 	}
 

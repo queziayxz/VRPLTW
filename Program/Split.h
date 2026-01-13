@@ -29,11 +29,10 @@ SOFTWARE.*/
 struct ClientSplit
 {
 	double demand;
-	double serviceTime;
 	double d0_x;
 	double dx_0;
 	double dnext;
-	ClientSplit() : demand(0.), serviceTime(0.), d0_x(0.), dx_0(0.), dnext(0.) {};
+	ClientSplit() : demand(0.), d0_x(0.), dx_0(0.), dnext(0.) {};
 };
 
 // Simple Deque which is used for all Linear Split algorithms
@@ -75,7 +74,6 @@ class Split
  std::vector < std::vector < int > > pred;  // Indice of the predecessor in an optimal path
  std::vector <double> sumDistance; // sumDistance[i] for i > 1 contains the sum of distances : sum_{k=1}^{i-1} d_{k,k+1}
  std::vector <double> sumLoad; // sumLoad[i] for i >= 1 contains the sum of loads : sum_{k=1}^{i} q_k
- std::vector <double> sumService; // sumService[i] for i >= 1 contains the sum of service time : sum_{k=1}^{i} s_k
 
  // To be called with i < j only
  // Computes the cost of propagating the label i until j

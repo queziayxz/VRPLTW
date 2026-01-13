@@ -11,8 +11,7 @@ set(
         Program/Population.cpp
         Program/Split.cpp
         Program/InstanceCVRPLIB.cpp
-        Program/AlgorithmParameters.cpp
-        Program/C_Interface.cpp)
+        Program/AlgorithmParameters.cpp)
 
 if (MSVC)
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -70,7 +69,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
                                         -P ${PROJECT_SOURCE_DIR}/Test/TestExecutable.cmake)
 
     # Test Library
-    add_subdirectory(Test/Test-c/)
     add_test(NAME       lib_test_c
              COMMAND    lib_test_c)
 
