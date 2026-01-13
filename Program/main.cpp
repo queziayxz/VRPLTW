@@ -19,10 +19,9 @@ int main(int argc, char *argv[])
 
 		// Reading the data file and initializing some data structures
 		if (commandline.verbose) std::cout << "----- READING INSTANCE: " << commandline.pathInstance << std::endl;
-		InstanceCVRPLIB cvrp(commandline.pathInstance, commandline.isRoundingInteger);
+		InstanceCVRPLIB cvrp(commandline.pathInstance);
 
-		Params params(cvrp.x_coords,cvrp.y_coords,cvrp.dist_mtx,cvrp.service_time,cvrp.demands,
-			          cvrp.vehicleCapacity,cvrp.durationLimit,commandline.nbVeh,cvrp.isDurationConstraint,commandline.verbose,commandline.ap);
+		Params params(cvrp.nodes,cvrp.distances, cvrp.nbClients, cvrp.nbLockers, cvrp.vehicleCapacity,commandline.nbVeh,commandline.verbose,commandline.ap);
 
 		// Running HGS
 		Genetic solver(params);

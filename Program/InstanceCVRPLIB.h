@@ -7,20 +7,29 @@
 #include<string>
 #include<vector>
 
+struct time_window {
+	double start{};
+	double end{};
+};
+
+struct node {
+	double x{};
+	double y{};
+	time_window tw{};
+	double demand{};
+	int polarAngle{};
+};
+
 class InstanceCVRPLIB
 {
 public:
-	std::vector<double> x_coords;
-	std::vector<double> y_coords;
-	std::vector< std::vector<double> > dist_mtx;
-	std::vector<double> service_time;
-	std::vector<double> demands;
-	double durationLimit = 1.e30;							// Route duration limit
-	double vehicleCapacity = 1.e30;							// Capacity limit
-	bool isDurationConstraint = false;						// Indicates if the problem includes duration constraints
-	int nbClients ;											// Number of clients (excluding the depot)
+	std::vector<node> nodes; // depot, clients and lockers
+	std::vector<std::vector<double>> distances;
+	double vehicleCapacity;							// Capacity limit
+	int nbClients;											// Number of clients (excluding the depot)
+	int nbLockers;
 
-	InstanceCVRPLIB(std::string pathToInstance, bool isRoundingInteger);
+	InstanceCVRPLIB(std::string pathToInstance);
 };
 
 

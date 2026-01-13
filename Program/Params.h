@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include "CircleSector.h"
 #include "AlgorithmParameters.h"
+#include "InstanceCVRPLIB.h"
 #include <string>
 #include <vector>
 #include <list>
@@ -40,15 +41,6 @@ SOFTWARE.*/
 #include <random>
 #define MY_EPSILON 0.00001 // Precision parameter, used to avoid numerical instabilities
 #define PI 3.14159265359
-
-struct Client
-{
-	double coordX;			// Coordinate X
-	double coordY;			// Coordinate Y
-	double serviceDuration; // Service duration
-	double demand;			// Demand
-	int polarAngle;			// Polar angle of the client around the depot, measured in degrees and truncated for convenience
-};
 
 class Params
 {
@@ -71,27 +63,25 @@ public:
 	/* DATA OF THE PROBLEM INSTANCE */
 	bool isDurationConstraint ;								// Indicates if the problem includes duration constraints
 	int nbClients ;											// Number of clients (excluding the depot)
+	int nbLockers;
 	int nbVehicles ;										// Number of vehicles
 	double durationLimit;									// Route duration limit
 	double vehicleCapacity;									// Capacity limit
 	double totalDemand ;									// Total demand required by the clients
 	double maxDemand;										// Maximum demand of a client
 	double maxDist;											// Maximum distance between two clients
-	std::vector< Client > cli ;								// Vector containing information on each client
+	std::vector<node> cli ;								// Vector containing information on each client
 	const std::vector< std::vector< double > >& timeCost;	// Distance matrix
 	std::vector< std::vector< int > > correlatedVertices;	// Neighborhood restrictions: For each client, list of nearby customers
 	bool areCoordinatesProvided;                            // Check if valid coordinates are provided
 
 	// Initialization from a given data set
-	Params(const std::vector<double>& x_coords,
-		const std::vector<double>& y_coords,
-		const std::vector<std::vector<double>>& dist_mtx,
-		const std::vector<double>& service_time,
-		const std::vector<double>& demands,
+	Params(const std::vector<node>& nodes,
+		const std::vector<std::vector<double>>& distances,
+		int nbClients,
+		int nbLockers,
 		double vehicleCapacity,
-		double durationLimit,
 		int nbVeh,
-		bool isDurationConstraint,
 		bool verbose,
 		const AlgorithmParameters& ap);
 };

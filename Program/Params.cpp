@@ -3,26 +3,20 @@
 // The universal constructor for both executable and shared library
 // When the executable is run from the commandline,
 // it will first generate an CVRPLIB instance from .vrp file, then supply necessary information.
-Params::Params(
-	const std::vector<double>& x_coords,
-	const std::vector<double>& y_coords,
-	const std::vector<std::vector<double>>& dist_mtx,
-	const std::vector<double>& service_time,
-	const std::vector<double>& demands,
+Params::Params(const std::vector<node>& nodes,
+	const std::vector<std::vector<double>>& distances,
+	int nbClients,
+	int nbLockers,
 	double vehicleCapacity,
-	double durationLimit,
 	int nbVeh,
-	bool isDurationConstraint,
 	bool verbose,
-	const AlgorithmParameters& ap
-)
-	: ap(ap), isDurationConstraint(isDurationConstraint), nbVehicles(nbVeh), durationLimit(durationLimit),
-	  vehicleCapacity(vehicleCapacity), timeCost(dist_mtx), verbose(verbose)
+	const AlgorithmParameters& ap)
+	: ap(ap), nbVehicles(nbVeh), durationLimit(durationLimit), nbClients(nbClients), nbLockers(nbLockers),
+	  vehicleCapacity(vehicleCapacity), timeCost(distances), verbose(verbose)
 {
 	// This marks the starting time of the algorithm
 	startTime = clock();
 
-	nbClients = (int)demands.size() - 1; // Need to substract the depot from the number of nodes
 	totalDemand = 0.;
 	maxDemand = 0.;
 
@@ -30,28 +24,24 @@ Params::Params(
 	ran.seed(ap.seed);
 
 	// check if valid coordinates are provided
-	areCoordinatesProvided = (demands.size() == x_coords.size()) && (demands.size() == y_coords.size());
+	areCoordinatesProvided = true;
 
-	cli = std::vector<Client>(nbClients + 1);
-	for (int i = 0; i <= nbClients; i++)
+	cli = nodes;
+	for (int i = 1; i < nbClients + nbLockers + 1; i++)
 	{
 		// If useSwapStar==false, x_coords and y_coords may be empty.
-		if (ap.useSwapStar == 1 && areCoordinatesProvided)
-		{
-			cli[i].coordX = x_coords[i];
-			cli[i].coordY = y_coords[i];
+		if (ap.useSwapStar == 1 && areCoordinatesProvided) {
 			cli[i].polarAngle = CircleSector::positive_mod(
-				32768. * atan2(cli[i].coordY - cli[0].coordY, cli[i].coordX - cli[0].coordX) / PI);
+				32768. * atan2(cli[i].y - cli[0].y, cli[i].x - cli[0].x) / PI);
 		}
-		else
-		{
-			cli[i].coordX = 0.0;
-			cli[i].coordY = 0.0;
+		else {
+			cli[i].x = 0.0;
+			cli[i].y = 0.0;
 			cli[i].polarAngle = 0.0;
 		}
+	}
 
-		cli[i].serviceDuration = service_time[i];
-		cli[i].demand = demands[i];
+	for (int i = 1; i < nbClients + 1; ++i) {
 		if (cli[i].demand > maxDemand) maxDemand = cli[i].demand;
 		totalDemand += cli[i].demand;
 	}
@@ -74,18 +64,18 @@ Params::Params(
 
 	// Calculation of the maximum distance
 	maxDist = 0.;
-	for (int i = 0; i <= nbClients; i++)
-		for (int j = 0; j <= nbClients; j++)
+	for (int i = 0; i <= nbClients + nbLockers; i++)
+		for (int j = 0; j <= nbClients + nbLockers; j++)
 			if (timeCost[i][j] > maxDist) maxDist = timeCost[i][j];
 
 	// Calculation of the correlated vertices for each customer (for the granular restriction)
-	correlatedVertices = std::vector<std::vector<int> >(nbClients + 1);
-	std::vector<std::set<int> > setCorrelatedVertices = std::vector<std::set<int> >(nbClients + 1);
+	correlatedVertices = std::vector<std::vector<int> >(nbClients + nbLockers + 1);
+	std::vector<std::set<int> > setCorrelatedVertices = std::vector<std::set<int> >(nbClients + nbLockers + 1);
 	std::vector<std::pair<double, int> > orderProximity;
-	for (int i = 1; i <= nbClients; i++)
+	for (int i = 1; i <= nbClients + nbLockers; i++)
 	{
 		orderProximity.clear();
-		for (int j = 1; j <= nbClients; j++)
+		for (int j = 1; j <= nbClients + nbLockers; j++)
 			if (i != j) orderProximity.emplace_back(timeCost[i][j], j);
 		std::sort(orderProximity.begin(), orderProximity.end());
 
@@ -98,7 +88,7 @@ Params::Params(
 	}
 
 	// Filling the vector of correlated vertices
-	for (int i = 1; i <= nbClients; i++)
+	for (int i = 1; i <= nbClients + nbLockers; i++)
 		for (int x : setCorrelatedVertices[i])
 			correlatedVertices[i].push_back(x);
 
@@ -116,8 +106,7 @@ Params::Params(
 	penaltyDuration = 1;
 	penaltyCapacity = std::max<double>(0.1, std::min<double>(1000., maxDist / maxDemand));
 
-	if (verbose)
-		std::cout << "----- INSTANCE SUCCESSFULLY LOADED WITH " << nbClients << " CLIENTS AND " << nbVehicles << " VEHICLES" << std::endl;
+	std::cout << "----- INSTANCE SUCCESSFULLY LOADED WITH " << nbClients << " CLIENTS, " << nbLockers << " LOCKERS AND " << nbVehicles << " VEHICLES" << std::endl;
 }
 
 
