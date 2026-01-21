@@ -6,33 +6,41 @@
 #include <string>
 
 struct TimeWindow {
-	double start;
-	double end;
+	double start = 0;
+	double end = 0;
 };
 
 struct Depot {
-	Point position;
-	TimeWindow time_window;
-};
-
-struct Client {
-	Point position;
-	TimeWindow time_window;
-	double demand;
+	Point position{};
+	TimeWindow time_window{};
 };
 
 struct Locker {
-	Point position;
-	double capacity;
+	unsigned id = 0;
+	std::string name = "";
+	Point position{};
+	double capacity = 0;
+};
+
+struct Client {
+	unsigned id = 0;
+	std::string name = "";
+	Point position{};
+	TimeWindow time_window{};
+	double demand = 0;
+	std::vector<Locker> delivery_locations{};
 };
 
 struct Instance {
-  Depot depot;
-  std::vector<Client> clients;
-  std::vector<Locker> lockers;
-  double vehicle_capacity;
+  Depot depot{};
+  std::vector<Client> clients{};
+  std::vector<Locker> lockers{};
+  double vehicle_capacity = 0;
+  int radius = 0;
 };
 
 auto read_instance(const std::string& filepath) -> Instance;
+void defineDeliveryLocations(Instance&instance);
+Client getClientById(Instance&instance, unsigned id);
 
 #endif // INSTANCE_HPP
