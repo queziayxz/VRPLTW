@@ -13,6 +13,7 @@ class Split {
         Instance instance{};                      // atributo da instancia atual
         Depot depot{};                            // deposito
         std::vector<double> cumulative_distance{};   // distancia acumulada de cada rota
+        std::vector<double> cumulative_timeWindow{};   // distancia acumulada de cada rota
         std::vector<int> cumulative_demand{};   // distancia acumulada de cada rota
         std::vector<int> pred{};                  // predecessores da rota otima
 
