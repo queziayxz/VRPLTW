@@ -46,24 +46,25 @@ void Split::splitLinear()
         this->pred[(unsigned)t] = this->deque.front();
 
         if(t < static_cast<int>(this->individual.chromosome.size())) {
-            if(this->deque.size() > 2) {
-                while(dominates(this->deque.back(),this->deque[this->deque.size()-2],t,5)) {
-                    // std::cout << "cliente " << t << " domina " << this->deque.back() << std::endl;
-                    this->deque.pop_back();
-                }
-            }
-            std::cout << "this->deque.front(): " << this->deque.front() << std::endl;
-            std::cout << "this->cumulative_demand[(unsigned)this->deque.front()]: " << this->cumulative_demand[(unsigned)this->deque.front()] << std::endl;
-            std::cout << "this->cumulative_demand[(unsigned)t+1]: " << this->cumulative_demand[(unsigned)t+1] << std::endl;
-            std::cout << "this->instance.vehicle_capacity: " << this->instance.vehicle_capacity << std::endl;
+            // if(this->deque.size() > 2) {
+            //     while(dominates(this->deque.back(),this->deque[this->deque.size()-2],t,5)) {
+            //         std::cout << "cliente " << t << " domina " << this->deque.back() << std::endl;
+            //         this->deque.pop_back(); // retira do deque o elemento mais antigo
+            //     }
+            // }
+            // std::cout << "this->deque.front(): " << this->deque.front() << std::endl;
+            // std::cout << "this->cumulative_demand[(unsigned)this->deque.front()]: " << this->cumulative_demand[(unsigned)this->deque.front()] << std::endl;
+            // std::cout << "this->cumulative_demand[(unsigned)t+1]: " << this->cumulative_demand[(unsigned)t+1] << std::endl;
+            // std::cout << "this->instance.vehicle_capacity: " << this->instance.vehicle_capacity << std::endl;
+            // std::cout << "this->deque.size(): " << this->deque.size() << std::endl;
             this->deque.push_back(t);
             while(this->cumulative_demand[(unsigned)t+1] > this->instance.vehicle_capacity + this->cumulative_demand[(unsigned)this->deque.front()]) {
-                std::cout << "entrou falta capacidade: " << std::endl;
+                // std::cout << "entrou falta capacidade: " << std::endl;
                 this->deque.pop_front();
-                std::cout << "novo front: " << this->deque.front() << std::endl;
-                std::cout << "this->cumulative_demand[(unsigned)this->deque.front()]: " << this->cumulative_demand[(unsigned)this->deque.front()] << std::endl;
-                std::cout << "this->cumulative_demand[(unsigned)t+1]: " << this->cumulative_demand[(unsigned)t+1] << std::endl;
-                std::cout << "this->instance.vehicle_capacity: " << this->instance.vehicle_capacity << std::endl;
+                // std::cout << "novo front: " << this->deque.front() << std::endl;
+                // std::cout << "this->cumulative_demand[(unsigned)this->deque.front()]: " << this->cumulative_demand[(unsigned)this->deque.front()] << std::endl;
+                // std::cout << "this->cumulative_demand[(unsigned)t+1]: " << this->cumulative_demand[(unsigned)t+1] << std::endl;
+                // std::cout << "this->instance.vehicle_capacity: " << this->instance.vehicle_capacity << std::endl;
             }
         }
     }
@@ -75,7 +76,7 @@ void Split::splitLinear()
     std::cout << std::endl;
     
     int end = (int)this->pred.size()-1;
-    std::cout << "end: " << end << std::endl; // ultimo predecessor adicionado
+    // std::cout << "end: " << end << std::endl; // ultimo predecessor adicionado
     int j = 1;
     while(end > 1) {
         int init = (int)this->pred[(unsigned)end];
@@ -97,11 +98,11 @@ bool Split::dominates(int back, int prev, int t, int capacity)
     int indexBack = indexDominates(prev,back,capacity);
     int indexT = indexDominates(back,t,capacity);
 
-    std::cout << "prev " << prev << std::endl;
-    std::cout << "back " << back << std::endl;
-    std::cout << "t " << t << std::endl;
-    std::cout << "indexBack " << indexBack << std::endl;
-    std::cout << "indexT " << indexT << std::endl;
+    // std::cout << "prev " << prev << std::endl;
+    // std::cout << "back " << back << std::endl;
+    // std::cout << "t " << t << std::endl;
+    // std::cout << "indexBack " << indexBack << std::endl;
+    // std::cout << "indexT " << indexT << std::endl;
 
     if(indexT <= indexBack) return true;
 
@@ -134,10 +135,8 @@ int Split::indexDominates(int a, int b, int capacity)
 double Split::calcDistanceRoute(int i, int j)
 {
     j = j > 0 ? j-1 : j;
-    // int index = this->individual.chromosome[(unsigned)i];
-    // double distance = ::distance(this->depot.position, getClientById(this->instance,(unsigned)index).position);
-    int index = 0;
-    double distance = 0;
+    int index = this->individual.chromosome[(unsigned)i];
+    double distance = ::distance(this->depot.position, getClientById(this->instance,(unsigned)index).position);
     // std::cout << "dist 1: " << distance << std::endl;
     for(int x = i; x < j; x++) {
         index = this->individual.chromosome[(unsigned)x];
@@ -145,8 +144,8 @@ double Split::calcDistanceRoute(int i, int j)
         // std::cout << "dist 2: " << distance << std::endl;
     }
     
-    // index = this->individual.chromosome[(unsigned)j];
-    // distance += ::distance(getClientById(this->instance,(unsigned)index).position, this->depot.position);
+    index = this->individual.chromosome[(unsigned)j];
+    distance += ::distance(getClientById(this->instance,(unsigned)index).position, this->depot.position);
     // std::cout << "dist 3: " << distance << std::endl;
 
     return distance;
