@@ -1,9 +1,14 @@
 ## Arrumar
 - Adicionar o custo de atribuição no locker (de acordo com a distância)
-- Limitar os lockers que podem ser atribuidos ao cliente, de acordo com o radius da instância
+- Limitar os lockers que podem ser atribuidos ao cliente, de acordo com o radius da instância `FEITO`
 
 ## interessante
 - deixar o mutation_rate dinâmico, igual o SA faz, calcula a probabilidade de mudança de acordo com a temperatura
+- gerar a população inicial por um contrutivo
+- fazer busca local
+
+## Melhorias Futuras
+- Verificar a melhor rota para aquele locker entrar
 
 ## Obs
 - Em todos as instâncias, terão os mesmos lockers mas em quantidade diferente

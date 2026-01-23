@@ -111,7 +111,7 @@ Client getClientById(Instance&instance, unsigned id)
 {
 	Client clientReturn;
 	for(Client client : instance.clients) {
-		if(client.id == id){
+		if(client.id == id+1){
 			clientReturn = client;
 			break;
 		} 
