@@ -119,3 +119,16 @@ Client getClientById(Instance&instance, unsigned id)
 
 	return clientReturn;
 }
+
+Client getClientById_2(Instance&instance, unsigned id)
+{
+	Client clientReturn;
+	for(Client client : instance.clients) {
+		if(client.id == id){
+			clientReturn = client;
+			break;
+		} 
+	}
+
+	return clientReturn;
+}

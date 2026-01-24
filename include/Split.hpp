@@ -37,8 +37,8 @@ class Split {
         int back = 0;
 
     public:
-        Split(Instance instance, Individual individual);
-        std::vector<Route> splitLinear();
+        Split(Instance instance);
+        std::vector<Route> splitLinear(Individual individual);
 
         bool dominates(int back, int prev, int t, int capacity);
         int indexDominates(int a, int b, int capacity);

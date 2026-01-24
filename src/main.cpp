@@ -1,6 +1,7 @@
 #include "instance.hpp"
 #include "genetic.hpp"
 #include "Split.hpp"
+#include "LocalSearch.hpp"
 #include "timer.hpp"
 #include <iostream>
 
@@ -9,10 +10,10 @@ auto main() -> int {
   try {
     auto instance = read_instance("../instances/n20w20l2_1.vrpl");
   
-    // auto timer = Timer{};
-    // auto solution = genetic_algorithm(instance, 100, 500, 0.05);
+    
     Individual individuo = {
-      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20},
       10.0
     };
     Individual individuo2 = {
@@ -25,28 +26,33 @@ auto main() -> int {
       10.0
     };
 
-    Split split(instance,individuo);
-    std::vector<Route> solution = split.splitLinear();
+    // LocalSearch localSearch(instance);
+    // Individual individual = localSearch.iteratedGreedy(individuo,5);
 
-    // auto solution = decode_individual(instance, individuo2);
-    // // auto elapsed_time = timer.elapsed();
+    // Split split(instance);
+    // std::vector<Route> solution = split.splitLinear(individuo);
+
+    auto timer = Timer{};
+    auto solution = genetic_algorithm(instance, 100, 500, 0.05);
+    auto elapsed_time = timer.elapsed();
+    // // auto solution = decode_individual(instance, individuo2);
   
-    // // std::cout << "Total da distancia: " << solution.total_distance << '\n';
-    std::cout << "Numero de rotas: " << solution.size() << '\n';
-    // // std::cout << "Tempo total (ms): " << elapsed_time << '\n';
+    // // // std::cout << "Total da distancia: " << solution.total_distance << '\n';
+    std::cout << "Numero de rotas: " << solution.routes.size() << '\n';
+    std::cout << "Tempo total (ms): " << elapsed_time << '\n';
 
-    for(auto i = 0u; i < solution.size(); i++) {
-      std::cout << "Rota (" << solution[i].total_distance << ")(" << solution[i].load << "): ";
-      for(auto j = 0u; j < solution[i].customers.size(); j++) {
-        if(solution[i].assigned_lockers[j] == -1) {
-          std::cout << "C" << solution[i].customers[j] << " - ";
+    for(auto i = 0u; i < solution.routes.size(); i++) {
+      std::cout << "Rota (" << solution.routes[i].total_distance << ")(" << solution.routes[i].load << "): ";
+      for(auto j = 0u; j < solution.routes[i].customers.size(); j++) {
+        if(solution.routes[i].assigned_lockers[j] == -1) {
+          std::cout << "C" << solution.routes[i].customers[j] << " - ";
           continue;
         }
-        int locker = solution[i].assigned_lockers[j];
+        int locker = solution.routes[i].assigned_lockers[j];
         std::cout << "L" << locker;
         std::cout << "(";
-        while(solution[i].assigned_lockers[j] == locker) {
-          std::cout << solution[i].customers[j] << ",";
+        while(solution.routes[i].assigned_lockers[j] == locker) {
+          std::cout << solution.routes[i].customers[j] << ",";
           j++;
         }
         std::cout << ") - ";

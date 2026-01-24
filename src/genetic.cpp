@@ -1,5 +1,7 @@
 #include "genetic.hpp"
 #include "random.hpp"
+#include "Split.hpp"
+#include "LocalSearch.hpp"
 #include <numeric>
 #include <algorithm>
 #include <limits>
@@ -11,6 +13,7 @@
 const double INF = std::numeric_limits<double>::infinity();
 
 auto random_individual(const Instance& instance) -> Individual {
+  Split split(instance);
   auto individual = Individual{};
   individual.chromosome = std::vector<int>(instance.clients.size());
   std::iota(individual.chromosome.begin(), individual.chromosome.end(), 0); // inicializa com valores dos indices
@@ -20,10 +23,11 @@ auto random_individual(const Instance& instance) -> Individual {
 
 auto initialize_population(const Instance& instance, unsigned population_size) -> Population {
   auto population = Population{};
+  Split split(instance);
 
   for (auto i = 0u; i < population_size; ++i) {
     population.push_back(random_individual(instance));
-    population.back().fitness = evaluate_fitness(decode_individual(instance, population.back()));
+    population.back().fitness = evaluate_fitness(split.splitLinear(population.back()));
   }
 
   return population;
@@ -31,7 +35,7 @@ auto initialize_population(const Instance& instance, unsigned population_size) -
 
 auto select_parents(const Population& population) -> std::pair<const Individual&, const Individual&> {
   // Tournament selection
-  auto tournament_size = 5u;
+  auto tournament_size = 5u; // faz o terneio 5 vezes
   const auto* best1 = &population[Random::get_int(0u, (unsigned)population.size() - 1u)]; //seleciona um individuo randomicamente da populacao
   for (auto i = 1u; i < tournament_size; ++i) {
     const auto* competitor = &population[Random::get_int(0u, (unsigned)population.size() - 1u)];
@@ -273,28 +277,50 @@ auto decode_individual(const Instance& instance, const Individual& individual) -
 
 auto genetic_algorithm(const Instance& instance, unsigned population_size, unsigned generations, double mutation_rate) -> Solution {
   auto population = initialize_population(instance, population_size); //vertor de individuos
+  Split split(instance);
+  LocalSearch localSearch(instance);
 
   for (auto gen = 0u; gen < generations; ++gen) {
     auto new_population = Population{};
 
     while (new_population.size() < population_size) {
       auto [parent1, parent2] = select_parents(population);
+      // std::cout << "giant tour pai 1: " << std::endl;
+      // for(int i = 0; i < parent1.chromosome.size(); i++) {
+      //   std::cout << parent1.chromosome[i] << " ";
+      // }
       auto offspring = crossover(parent1, parent2);
-      mutate(offspring, mutation_rate);
-      offspring.fitness = evaluate_fitness(decode_individual(instance, offspring));
+      // std::cout << "giant tour antes mutacao: " << std::endl;
+      // for(int i = 0; i < offspring.chromosome.size(); i++) {
+      //   std::cout << offspring.chromosome[i] << " ";
+      // }
+      // std::cout << std::endl;
+      // mutate(offspring, mutation_rate);
+      offspring = localSearch.iteratedGreedy(offspring,1);
+      // std::cout << "giant tour depois da busca local: " << std::endl;
+      // for(int i = 0; i < offspring.chromosome.size(); i++) {
+      //   std::cout << offspring.chromosome[i] << " ";
+      // }
+      // std::cout << std::endl;
+      offspring.fitness = evaluate_fitness(split.splitLinear(offspring));
       new_population.push_back(offspring);
     }
 
     population = std::move(new_population);
   }
 
-  const auto* best_individual = &population[0];
-  for (const auto& individual : population) {
+  auto* best_individual = &population[0];
+  for (auto& individual : population) {
     if (individual.fitness < best_individual->fitness) {
       best_individual = &individual;
     }
   }
 
-  auto best_routes = decode_individual(instance, *best_individual);
+  std::cout << "giant tour final: " << std::endl;
+  for(int i = 0; i < best_individual->chromosome.size(); i++) {
+    std::cout << best_individual->chromosome[i] << " ";
+  }
+  std::cout << std::endl;
+  auto best_routes = split.splitLinear(*best_individual);
   return Solution{best_routes, best_individual->fitness};
 }
