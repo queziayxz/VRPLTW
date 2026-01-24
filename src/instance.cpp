@@ -34,7 +34,7 @@ auto read_instance(const std::string& filepath) -> Instance {
 	instance.radius = 15; // valor utilizado no artigo
 
 	instance.clients.reserve((unsigned)num_clients);
-	instance.lockers = std::vector<Locker>((unsigned)num_lockers);
+	instance.lockers.reserve((unsigned)num_lockers);
 
 	Client cliente_insertion{};
 
@@ -63,17 +63,23 @@ auto read_instance(const std::string& filepath) -> Instance {
 	file >> a >> instance.depot.position.x >> instance.depot.position.y
 			>> instance.depot.time_window.start >> instance.depot.time_window.end >> a;
 
+	Locker locker_insertion{};
+
 	for (auto i = 0u; i < (unsigned)num_lockers; ++i) {
 		auto id = 0u;
 		file >> id;
 		if (id != i + 1) {
 			throw std::runtime_error{"Erro na leitura dos dados do locker."};
 		}
-		instance.lockers[i].id = id;
-		instance.lockers[i].name = std::string("L").append(std::to_string(id));
+		locker_insertion.id = id;
+		locker_insertion.name = std::string("L").append(std::to_string(id));
+		// instance.lockers[i].id = id;
+		// instance.lockers[i].name = std::string("L").append(std::to_string(id));
 		auto a = 0.0;
-		file >> instance.lockers[i].position.x >> instance.lockers[i].position.y 
-        >> a >> a >> instance.lockers[i].capacity;
+		file >> locker_insertion.position.x >> locker_insertion.position.y 
+        >> a >> a >> locker_insertion.capacity;
+
+		instance.lockers.emplace(id,locker_insertion);
 	}
 
 	std::cout << "leu os dados" << std::endl;
@@ -107,36 +113,10 @@ auto read_instance(const std::string& filepath) -> Instance {
 void defineDeliveryLocations(Instance&instance)
 {
 	for (auto client = instance.clients.begin(); client != instance.clients.end(); ++client) {
-		for(Locker&locker : instance.lockers) {
-			if(distance(client->second.position,locker.position) <= instance.radius) {
-				client->second.delivery_locations.push_back(locker);
+		for(auto locker = instance.lockers.begin(); locker != instance.lockers.end(); ++locker) {
+			if(distance(client->second.position,locker->second.position) <= instance.radius) {
+				client->second.delivery_locations.push_back(locker->second);
 			}
 		}
 	}
 }
-
-// Client getClientById(Instance&instance, unsigned id)
-// {
-// 	Client clientReturn;
-// 	for(Client client : instance.clients) {
-// 		if(client.id == id+1){
-// 			clientReturn = client;
-// 			break;
-// 		} 
-// 	}
-
-// 	return clientReturn;
-// }
-
-// Client getClientById_2(Instance&instance, unsigned id)
-// {
-// 	Client clientReturn;
-// 	for(Client client : instance.clients) {
-// 		if(client.id == id){
-// 			clientReturn = client;
-// 			break;
-// 		} 
-// 	}
-
-// 	return clientReturn;
-// }

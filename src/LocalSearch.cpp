@@ -3,6 +3,7 @@
 
 #include "LocalSearch.hpp"
 #include "point.hpp"
+#include "random.hpp"
 
 const double INF = std::numeric_limits<double>::infinity();
 
@@ -13,77 +14,81 @@ LocalSearch::LocalSearch(Instance instance)
 
 Individual LocalSearch::iteratedGreedy(Individual individual, int destruction_rate)
 {
-    std::vector<double> cumulative_distance = std::vector<double>(individual.chromosome.size()-destruction_rate);
     Individual best = individual;
-    double bestFitness = fitnessFunction(individual);
+    double best_fitness = fitnessFunction(individual.chromosome);
+    
 
     Individual offspring = individual;
     std::vector<int> indices((int)destruction_rate);
-    int i = 0;
-    int y = 0;
-    int x = 0;
-    int maxIter = 30;
+    int it = 0;
+    int maxIter = 1;
+    int index = 0;
+    double fitness = 0;
 
-    while(i < maxIter) {
-        x = Random::get_int(0u, (unsigned)individual.chromosome.size()-1u);
+    while(it < maxIter) {
         
-        do {
-            y = Random::get_int(0u, (unsigned)individual.chromosome.size()-1u);
-        } while(y == x);
+        offspring = best;
+        
+        //destroi
+        // for(int i = 0; i < destruction_rate; i++) {
+        //     index = Random::get_int(0u, (unsigned)offspring.chromosome.size()-1u);
+        //     indices[i] = offspring.chromosome[index];
+        //     offspring.chromosome.erase(offspring.chromosome.begin()+index);
+        // }
 
-        individual.chromosome = opt_2(individual.chromosome,x,y);
-        double fitness = fitnessFunction(individual);
-        if(fitness < bestFitness) {
-            bestFitness = fitness;
-            best = individual;
+        // reconstroi com neh
+        // fitness = neh(offspring.chromosome,indices,best_fitness);
+
+        // faz busca local com 2-opt best improvement
+        for(int i = 0; i < offspring.chromosome.size(); i++) {
+            for(int j = i+1; j < offspring.chromosome.size(); j++) {
+                individual.chromosome = opt_2(offspring.chromosome,i,j);
+                fitness = fitnessFunction(individual.chromosome);
+                if(fitness < best_fitness) {
+                    best_fitness = fitness;
+                    best = individual;
+                    break;
+                }
+            }
         }
-        i++;
+        it++;
+
     }
 
+    // std::cout << "retornou busca" << std::endl;
+
+    // std::cout << "fitness depois da busca local: " << best_fitness << std::endl;
+    // std::cout << "giant tour depois busca local: " << std::endl;
+    // for(int gen : best.chromosome) {
+    //     std::cout << gen << " ";
+    // }
+    // std::cout << std::endl;
     return best;
-
-    // std::cout << "giant tour antes da destruicao: " << std::endl;
-    // for(int gen : offspring.chromosome) {
-    //     std::cout << gen << " ";
-    // }
-    // std::cout << std::endl;
-    // destroi
-    // for(int i = 0; i < destruction_rate; i++) {
-    //     index = Random::get_int(0u, (unsigned)individual.chromosome.size()-1u);
-    //     std::cout << "index removido: " << index << std::endl;
-    //     indices[i] = offspring.chromosome[index];
-    //     offspring.chromosome.erase(offspring.chromosome.begin()+index);
-    // }
-
-    // std::cout << "giant tour depois de destruir: " << std::endl;
-    // for(int gen : offspring.chromosome) {
-    //     std::cout << gen << " ";
-    // }
-    // std::cout << std::endl;
-    // calcCumulativeDistance(offspring.chromosome,cumulative_distance);
-    // double dist = calcDistanceNEH(offspring.chromosome,cumulative_distance,bestFitness2,indices[0]); // ja deixar que essa funcao altere o cumulated distance
-    // if(dist < bestFitness) {
-    //     bestFitness = dist; // ter uma forma de mapear os locais onde deverá ser inseridos os indices retirados, para ter que inserir somente ao final
-    // }
-
-    // opt_2(offspring.chromosome,0,3);
-    
-    // //reconstroi
-    // for(int i = 0; i < destruction_rate; i++) {
-    //     index = Random::get_int(0, individual.chromosome.size()-1);
-    //     indices[i] = individual.chromosome[index];
-    //     individual.chromosome[index] = -1;
-    // }
-
-    // return offspring;
 
 }
 
-void LocalSearch::neh(std::vector<int>&tour, int index, int value)
+double LocalSearch::neh(std::vector<int>&tour, std::vector<int> indices, double total_distance)
 {
-    for(int i = 0; i < tour.size(); i++) {
+    double aux_fitness = 0;
+    double best_indice = 1;
+    double best_fitness = INF;
 
+    std::vector<std::tuple<double, double, double>> rede_pert = redePert(tour);
+
+    for(int i = 0; i < indices.size(); i++) {
+        for(int j = 1; j < tour.size()-1; j++) { // so verificar para o meio da tour e nao as extremidades
+            aux_fitness = calcDistanceNEH(tour,total_distance,j,indices[i]);
+            if(aux_fitness < best_fitness) {
+                best_fitness = aux_fitness;
+                best_indice = j;
+            }
+        }
+        tour.insert(tour.begin()+best_indice+1,indices[i]);
+        total_distance = best_fitness;
+        best_fitness = INF;
     }
+
+    return total_distance;
 }
 
 std::vector<int> LocalSearch::opt_2(std::vector<int> tour, int i, int j)
@@ -106,66 +111,99 @@ std::vector<int> LocalSearch::opt_2(std::vector<int> tour, int i, int j)
     return route;
 }
 
-double LocalSearch::calcDistanceNEH(std::vector<int>&tour, std::vector<double>&cumulative_distance, double&bestFitness, int index, int value)
+std::vector<std::tuple<double, double, double>> LocalSearch::redePert(std::vector<int>& tour) {
+    // tuple: <TempoInicio, Espera, Folga>
+    std::vector<std::tuple<double, double, double>> rede(tour.size());
+
+    // --- 1. FORWARD PASS (Início e Espera) ---
+    double chegada;
+    
+    // Primeiro Cliente (Depósito -> C1)
+    chegada = ::distance(this->instance.depot.position, this->instance.clients.at(tour[0]).position);
+    double t_inicio = std::max(chegada, this->instance.clients.at(tour[0]).time_window.start);
+    double espera = t_inicio - chegada; // Se chegou em 60 e abre 306, espera 246
+    rede[0] = std::make_tuple(t_inicio, espera, 0.0);
+
+    for (int i = 1; i < tour.size(); i++) {
+        // Chegada = Inicio do anterior + distância
+        chegada = std::get<0>(rede[i-1]) + ::distance(this->instance.clients.at(tour[i-1]).position, this->instance.clients.at(tour[i]).position);
+        
+        t_inicio = std::max(chegada, this->instance.clients.at(tour[i]).time_window.start);
+        espera = t_inicio - chegada; // Espera é sempre Início - Chegada
+        
+        rede[i] = std::make_tuple(t_inicio, espera, 0.0);
+    }
+
+    // --- 2. BACKWARD PASS (Folga / Slack) ---
+    // A folga do último cliente é simplesmente o quanto falta para ele fechar
+    int n = tour.size() - 1;
+    double folga_propria = this->instance.clients.at(tour[n]).time_window.end - std::get<0>(rede[n]);
+    std::get<2>(rede[n]) = folga_propria;
+
+    for (int i = n - 1; i >= 0; i--) {
+        folga_propria = this->instance.clients.at(tour[i]).time_window.end - std::get<0>(rede[i]);
+        
+        // A folga acumulada é o mínimo entre a minha folga e o que o próximo aguenta
+        // O próximo aguenta: a espera dele (amortecedor) + a folga dele
+        double espera_proximo = std::get<1>(rede[i+1]);
+        double folga_proximo = std::get<2>(rede[i+1]);
+        
+        std::get<2>(rede[i]) = std::min(folga_propria, espera_proximo + folga_proximo);
+    }
+
+    // --- 3. PRINT ---
+    for (int i = 0; i < tour.size(); i++) {
+        std::cout << "Cliente: " << tour[i] 
+                  << " | T: " << std::get<0>(rede[i]) 
+                  << " | Espera: " << std::get<1>(rede[i]) 
+                  << " | Folga: " << std::get<2>(rede[i]) << std::endl;
+    }
+}
+double LocalSearch::calcDistanceNEH(std::vector<int>&tour, double total_distance, int index, int idClienteAdd)
 {
-    std::cout << "cumulative_distance.size(): " << cumulative_distance.size() << std::endl;
-    double total_distance = cumulative_distance[cumulative_distance.size()-1]; // pega distancia total da rota
-    double distance_aresta = 0.0;
-    if(index > 0) {
-        distance_aresta = cumulative_distance[index] - cumulative_distance[index+1]; // calcula distancia da aresta que vai retirar
-    }
+    if(index == 0 || index == tour.size()-1) return total_distance;
 
-    std::cout << "distancia entre " << tour[index] << " e " << tour[index+1] << ": " << distance_aresta << std::endl;
-    std::cout << "index: " << index << std::endl;
-    std::cout << "index+1: " << index+1 << std::endl;
-    std::cout << "value: " << value << std::endl;
-    
-    std::cout << "total distance antes de retirar aresta: " << total_distance << std::endl;
-    total_distance -= abs(distance_aresta); // retira o valor da aresta 
-    std::cout << "total distance depois de retirar aresta: " << total_distance << std::endl;
-    total_distance += ::distance(this->instance.clients.at(value).position, this->instance.clients.at(tour[index]).position);
-    std::cout << "total distance depois de somar primeira distancia: " << total_distance << std::endl;
-    total_distance += ::distance(this->instance.clients.at(value).position, this->instance.clients.at(tour[index+1]).position);
-    std::cout << "total distance depois final: " << total_distance << std::endl;
-    
-    if(total_distance < bestFitness) {
-        bestFitness = total_distance;
+    Client clientA = this->instance.clients.at(tour[index]);
+    Client clientB = this->instance.clients.at(tour[index+1]);
+    Client clientAdd = this->instance.clients.at(idClienteAdd);
 
-    }
+    
+    double distance_aresta = ::distance(clientA.position,clientB.position);
+    // std::cout << "distance " << clientA.id << " -> " << clientB.id << ": " << distance_aresta << std::endl;
+    // std::cout << "best fitess antes: " << total_distance << std::endl;
+    total_distance -= distance_aresta;
+    // std::cout << "best fitess depois de retirar aresta: " << total_distance << std::endl;
+    
+    total_distance += ::distance(clientA.position,clientAdd.position);
+    // std::cout << "best fitess depois de adicionar aresta A: " << total_distance << std::endl;
+    total_distance += ::distance(clientB.position,clientAdd.position);
+    // std::cout << "best fitess depois de adicionar aresta B: " << total_distance << std::endl;
 
     return total_distance;
 }
 
-void LocalSearch::calcCumulativeDistance(std::vector<int>&offspring, std::vector<double>&cumulative_distance)
-{
-    // cumulative_distance.clear();
-    cumulative_distance[0] = 0;
-
-    std::cout << "giant tour function: " << std::endl;
-    for(int gen : offspring) {
-        std::cout << gen << " ";
-    }
-
-    std::cout << std::endl;
-
-    for(int i = 1; i < offspring.size(); i++) {
-        std::cout << "getClientById(this->instance.clients(offspring[i]).id: " << this->instance.clients.at(offspring[i]).id << std::endl;
-        std::cout << "getClientById(this->instance,offspring[i-1]).id: " << this->instance.clients.at(offspring[i-1]).id << std::endl;
-        cumulative_distance[(unsigned)i]  = cumulative_distance[(unsigned)i-1] + ::distance(this->instance.clients.at(offspring[i-1]).position,
-                this->instance.clients.at(offspring[i]).position);
-        std::cout << "distancia ate " << this->instance.clients.at(offspring[i]).id << ": " << cumulative_distance[(unsigned)i] << std::endl;;
-        std::cout << "i: " << i << std::endl;
-    }   
-}
-
-double LocalSearch::fitnessFunction(Individual&individual)
+double LocalSearch::fitnessFunction(std::vector<int> tour)
 {
     double distance = 0.0;
 
-    for(int i = 0; i < individual.chromosome.size()-1; i++) {
-        distance += ::distance(this->instance.clients.at(individual.chromosome[i]).position,
-                this->instance.clients.at(individual.chromosome[i+1]).position);
+    for(int i = 0; i < tour.size()-1; i++) {
+        distance += ::distance(this->instance.clients.at(tour[i]).position,
+                this->instance.clients.at(tour[i+1]).position);
     }
 
     return distance;
+}
+
+double evaluate_fitness(const std::vector<Route>& routes) {
+  auto total_distance = 0.0;
+
+  for (int i = 0; i < routes.size(); i++) {
+    total_distance += routes[i].total_distance;
+    for(int j = 0; j < routes[i].customers.size(); j++) {
+      if(routes[i].assigned_lockers[j] > 0) {
+        total_distance += ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
+      }
+    }
+  }
+  return total_distance;
 }

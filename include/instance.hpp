@@ -35,7 +35,7 @@ struct Client {
 struct Instance {
   Depot depot{};
   std::unordered_map<int,Client> clients{};
-  std::vector<Locker> lockers{};
+  std::unordered_map<int,Locker> lockers{};
   double vehicle_capacity = 0;
   int radius = 0;
 };

@@ -12,8 +12,7 @@ auto main() -> int {
   
     
     Individual individuo = {
-      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
-        17, 18, 19, 20},
+      {3, 12, 10, 18, 17, 19, 9, 16, 6, 20, 13, 4, 7, 14, 2, 15, 1, 5, 11, 8},
       10.0
     };
     Individual individuo2 = {
@@ -29,17 +28,19 @@ auto main() -> int {
     // LocalSearch localSearch(instance);
     // Individual individual = localSearch.iteratedGreedy(individuo,5);
 
+    // localSearch.redePert(individuo.chromosome);
+
     // Split split(instance);
     // std::vector<Route> solution = split.splitLinear(individuo);
 
     // std::cout << "indiviuo com id 2: " << instance.clients.at(2).demand << std::endl;
 
     auto timer = Timer{};
-    auto solution = genetic_algorithm(instance, 100, 500, 0.05);
+    auto solution = genetic_algorithm(instance, 100, 300, 0.05);
     auto elapsed_time = timer.elapsed();
-    // // auto solution = decode_individual(instance, individuo2);
+    // auto solution = decode_individual(instance, individuo2);
   
-    // // // std::cout << "Total da distancia: " << solution.total_distance << '\n';
+    std::cout << "Custo total: " << solution.total_distance << '\n';
     std::cout << "Numero de rotas: " << solution.routes.size() << '\n';
     std::cout << "Tempo total (ms): " << elapsed_time << '\n';
 

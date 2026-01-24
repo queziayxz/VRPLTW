@@ -29,7 +29,7 @@ auto initialize_population(Instance& instance, unsigned population_size) -> Popu
 auto select_parents(const Population& population) -> std::pair<const Individual&, const Individual&>;
 auto crossover(const Individual& parent1, const Individual& parent2) -> Individual;
 auto mutate(Individual& individual, double mutation_rate) -> void;
-auto evaluate_fitness(const std::vector<Route>& routes) -> double;
+auto evaluate_fitness(const std::vector<Route>& routes, Instance&instance) -> double;
 auto decode_individual(Instance& instance, const Individual& individual) -> std::vector<Route>;
 auto try_locker(double vehicle_capacity, const Point& prev_position, const Client& client, 
   const std::vector<double>& locker_remaining_capacities, const std::vector<Locker>& lockers,
