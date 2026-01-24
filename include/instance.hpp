@@ -4,6 +4,7 @@
 #include "point.hpp"
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 struct TimeWindow {
 	double start = 0;
@@ -33,7 +34,7 @@ struct Client {
 
 struct Instance {
   Depot depot{};
-  std::vector<Client> clients{};
+  std::unordered_map<int,Client> clients{};
   std::vector<Locker> lockers{};
   double vehicle_capacity = 0;
   int radius = 0;
@@ -41,6 +42,6 @@ struct Instance {
 
 auto read_instance(const std::string& filepath) -> Instance;
 void defineDeliveryLocations(Instance&instance);
-Client getClientById(Instance&instance, unsigned id);
+// Client getClientById(Instance&instance, unsigned id);
 
 #endif // INSTANCE_HPP

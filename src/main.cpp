@@ -32,6 +32,8 @@ auto main() -> int {
     // Split split(instance);
     // std::vector<Route> solution = split.splitLinear(individuo);
 
+    // std::cout << "indiviuo com id 2: " << instance.clients.at(2).demand << std::endl;
+
     auto timer = Timer{};
     auto solution = genetic_algorithm(instance, 100, 500, 0.05);
     auto elapsed_time = timer.elapsed();

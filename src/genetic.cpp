@@ -12,22 +12,24 @@
 
 const double INF = std::numeric_limits<double>::infinity();
 
-auto random_individual(const Instance& instance) -> Individual {
+auto random_individual(Instance& instance) -> Individual {
   Split split(instance);
   auto individual = Individual{};
   individual.chromosome = std::vector<int>(instance.clients.size());
-  std::iota(individual.chromosome.begin(), individual.chromosome.end(), 0); // inicializa com valores dos indices
+  std::iota(individual.chromosome.begin(), individual.chromosome.end(), 1); // inicializa com valores dos indices
   std::shuffle(individual.chromosome.begin(), individual.chromosome.end(), Random::mt); // embaralha as posicoes do vetor
   return individual;
 }
 
-auto initialize_population(const Instance& instance, unsigned population_size) -> Population {
+auto initialize_population(Instance& instance, unsigned population_size) -> Population 
+{
   auto population = Population{};
   Split split(instance);
 
   for (auto i = 0u; i < population_size; ++i) {
     population.push_back(random_individual(instance));
     population.back().fitness = evaluate_fitness(split.splitLinear(population.back()));
+    // std::cout << "parou no spliut" << std::endl;
   }
 
   return population;
@@ -194,7 +196,7 @@ auto try_locker(double vehicle_capacity, const Point& prev_position, const Clien
   return best_locker;
 }
 
-auto decode_individual(const Instance& instance, const Individual& individual) -> std::vector<Route> {
+auto decode_individual(Instance& instance, const Individual& individual) -> std::vector<Route> {
   // Split the chromosome into routes based on vehicle capacity, time windows, and locker assignments
   auto routes = std::vector<Route>{};
   std::queue<int> clients;
@@ -220,7 +222,7 @@ auto decode_individual(const Instance& instance, const Individual& individual) -
     int gene = individual.chromosome[i];
     std::cout << "pegoou: " << i << std::endl;
     std::cout << "gene: " << gene << std::endl;
-    const auto& client = instance.clients[(unsigned)gene];
+    const auto& client = instance.clients.at(gene);
     bool add = false;
     
     delivery_locations = client.delivery_locations;
@@ -275,8 +277,11 @@ auto decode_individual(const Instance& instance, const Individual& individual) -
   return routes;
 }
 
-auto genetic_algorithm(const Instance& instance, unsigned population_size, unsigned generations, double mutation_rate) -> Solution {
+auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned generations, double mutation_rate) -> Solution 
+{
   auto population = initialize_population(instance, population_size); //vertor de individuos
+  
+  // std::cout << "criou população inicial" << std::endl;
   Split split(instance);
   LocalSearch localSearch(instance);
 
@@ -316,11 +321,11 @@ auto genetic_algorithm(const Instance& instance, unsigned population_size, unsig
     }
   }
 
-  std::cout << "giant tour final: " << std::endl;
-  for(int i = 0; i < best_individual->chromosome.size(); i++) {
-    std::cout << best_individual->chromosome[i] << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "giant tour final: " << std::endl;
+  // for(int i = 0; i < best_individual->chromosome.size(); i++) {
+  //   std::cout << best_individual->chromosome[i] << " ";
+  // }
+  // std::cout << std::endl;
   auto best_routes = split.splitLinear(*best_individual);
   return Solution{best_routes, best_individual->fitness};
 }

@@ -123,9 +123,9 @@ double LocalSearch::calcDistanceNEH(std::vector<int>&tour, std::vector<double>&c
     std::cout << "total distance antes de retirar aresta: " << total_distance << std::endl;
     total_distance -= abs(distance_aresta); // retira o valor da aresta 
     std::cout << "total distance depois de retirar aresta: " << total_distance << std::endl;
-    total_distance += ::distance(getClientById(this->instance,value).position, getClientById(this->instance,tour[index]).position);
+    total_distance += ::distance(this->instance.clients.at(value).position, this->instance.clients.at(tour[index]).position);
     std::cout << "total distance depois de somar primeira distancia: " << total_distance << std::endl;
-    total_distance += ::distance(getClientById(this->instance,value).position, getClientById(this->instance,tour[index+1]).position);
+    total_distance += ::distance(this->instance.clients.at(value).position, this->instance.clients.at(tour[index+1]).position);
     std::cout << "total distance depois final: " << total_distance << std::endl;
     
     if(total_distance < bestFitness) {
@@ -149,11 +149,11 @@ void LocalSearch::calcCumulativeDistance(std::vector<int>&offspring, std::vector
     std::cout << std::endl;
 
     for(int i = 1; i < offspring.size(); i++) {
-        std::cout << "getClientById(this->instance,offspring[i]).id: " << getClientById(this->instance,offspring[i]).id << std::endl;
-        std::cout << "getClientById(this->instance,offspring[i-1]).id: " << getClientById(this->instance,offspring[i-1]).id << std::endl;
-        cumulative_distance[(unsigned)i]  = cumulative_distance[(unsigned)i-1] + ::distance(getClientById(this->instance,offspring[i-1]).position,
-                getClientById(this->instance,offspring[i]).position);
-        std::cout << "distancia ate " << getClientById(this->instance,offspring[i]).id << ": " << cumulative_distance[(unsigned)i] << std::endl;;
+        std::cout << "getClientById(this->instance.clients(offspring[i]).id: " << this->instance.clients.at(offspring[i]).id << std::endl;
+        std::cout << "getClientById(this->instance,offspring[i-1]).id: " << this->instance.clients.at(offspring[i-1]).id << std::endl;
+        cumulative_distance[(unsigned)i]  = cumulative_distance[(unsigned)i-1] + ::distance(this->instance.clients.at(offspring[i-1]).position,
+                this->instance.clients.at(offspring[i]).position);
+        std::cout << "distancia ate " << this->instance.clients.at(offspring[i]).id << ": " << cumulative_distance[(unsigned)i] << std::endl;;
         std::cout << "i: " << i << std::endl;
     }   
 }
@@ -163,8 +163,8 @@ double LocalSearch::fitnessFunction(Individual&individual)
     double distance = 0.0;
 
     for(int i = 0; i < individual.chromosome.size()-1; i++) {
-        distance += ::distance(getClientById(this->instance,individual.chromosome[i]).position,
-                getClientById(this->instance,individual.chromosome[i+1]).position);
+        distance += ::distance(this->instance.clients.at(individual.chromosome[i]).position,
+                this->instance.clients.at(individual.chromosome[i+1]).position);
     }
 
     return distance;

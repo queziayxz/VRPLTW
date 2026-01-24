@@ -33,8 +33,10 @@ auto read_instance(const std::string& filepath) -> Instance {
 	instance.vehicle_capacity = num_clients / 2.0;
 	instance.radius = 15; // valor utilizado no artigo
 
-	instance.clients = std::vector<Client>((unsigned)num_clients);
+	instance.clients.reserve((unsigned)num_clients);
 	instance.lockers = std::vector<Locker>((unsigned)num_lockers);
+
+	Client cliente_insertion{};
 
 	for (auto i = 0u; i < (unsigned)num_clients; ++i) {
 		auto id = 0u;
@@ -42,11 +44,14 @@ auto read_instance(const std::string& filepath) -> Instance {
 		if (id != i + 1) {
 			throw std::runtime_error("Erro na leitura dos dados do cliente.");
 		}
-		instance.clients[i].id = id;
-		instance.clients[i].name = std::string("C").append(std::to_string(id));
-		file >> instance.clients[i].position.x >> instance.clients[i].position.y
-				>> instance.clients[i].time_window.start >> instance.clients[i].time_window.end
-				>> instance.clients[i].demand;
+		cliente_insertion.id = id;
+		cliente_insertion.name =  std::string("C").append(std::to_string(id));
+		file >> cliente_insertion.position.x >> cliente_insertion.position.y
+				>> cliente_insertion.time_window.start >> cliente_insertion.time_window.end
+				>> cliente_insertion.demand;
+
+		instance.clients.emplace(id,cliente_insertion);
+		
 	}
 
 	file >> content;
@@ -71,7 +76,10 @@ auto read_instance(const std::string& filepath) -> Instance {
         >> a >> a >> instance.lockers[i].capacity;
 	}
 
+	std::cout << "leu os dados" << std::endl;
+	
 	defineDeliveryLocations(instance);
+	std::cout << "adicionou delivary" << std::endl;
 
 	// for(Client client : instance.clients) {
 	// 	for(Locker locker : client.delivery_locations) {
@@ -98,37 +106,37 @@ auto read_instance(const std::string& filepath) -> Instance {
 
 void defineDeliveryLocations(Instance&instance)
 {
-	for(Client&client : instance.clients) {
+	for (auto client = instance.clients.begin(); client != instance.clients.end(); ++client) {
 		for(Locker&locker : instance.lockers) {
-			if(distance(client.position,locker.position) <= instance.radius) {
-				client.delivery_locations.push_back(locker);
+			if(distance(client->second.position,locker.position) <= instance.radius) {
+				client->second.delivery_locations.push_back(locker);
 			}
 		}
 	}
 }
 
-Client getClientById(Instance&instance, unsigned id)
-{
-	Client clientReturn;
-	for(Client client : instance.clients) {
-		if(client.id == id+1){
-			clientReturn = client;
-			break;
-		} 
-	}
+// Client getClientById(Instance&instance, unsigned id)
+// {
+// 	Client clientReturn;
+// 	for(Client client : instance.clients) {
+// 		if(client.id == id+1){
+// 			clientReturn = client;
+// 			break;
+// 		} 
+// 	}
 
-	return clientReturn;
-}
+// 	return clientReturn;
+// }
 
-Client getClientById_2(Instance&instance, unsigned id)
-{
-	Client clientReturn;
-	for(Client client : instance.clients) {
-		if(client.id == id){
-			clientReturn = client;
-			break;
-		} 
-	}
+// Client getClientById_2(Instance&instance, unsigned id)
+// {
+// 	Client clientReturn;
+// 	for(Client client : instance.clients) {
+// 		if(client.id == id){
+// 			clientReturn = client;
+// 			break;
+// 		} 
+// 	}
 
-	return clientReturn;
-}
+// 	return clientReturn;
+// }
