@@ -21,7 +21,7 @@ Split::Split(Instance instance, Individual individual)
     this->pred = std::vector<int>(individual.chromosome.size()+1);
 }
 
-void Split::splitLinear()
+std::vector<Route> Split::splitLinear()
 {
     this->cumulative_distance[0] = 0;
     this->cumulative_demand[0] = 0;
@@ -144,22 +144,45 @@ void Split::splitLinear()
     std::cout << std::endl;
     
     int end = (int)this->pred.size()-1;
+    std::vector<Route> routesFinals = std::vector<Route>{};
     // std::cout << "end: " << end << std::endl; // ultimo predecessor adicionado
     int j = 1;
+    int x = 0;
     std::cout << "bestRoute.size(): " << bestRoute.size() << std::endl;
     while(end > 1) {
         int init = (int)this->pred[(unsigned)end];
-        std::cout << "Rota ( " << bestRoute[end].distance << "): " << j << " cliente " << init+1 << " -> " << end << std::endl;
+        std::cout << "Rota (" << bestRoute[end].distance << "): " << j << " cliente " << init+1 << " -> " << end << std::endl;
         // for(int i = init+1; i <= end; i++) {
+        Route newRoute{};
+        routesFinals.push_back(newRoute);
+        routesFinals[x].customers = std::vector<int>(bestRoute[end].route.size());
+        routesFinals[x].assigned_lockers = std::vector<int>(bestRoute[end].route.size());
+        routesFinals[x].total_distance = bestRoute[end].distance;
+        routesFinals[x].load = bestRoute[end].load;
         for(int i = 0; i < bestRoute[end].route.size(); i++) {
             // std::cout << this->individual.chromosome[i-1] << " ";
-            std::cout << bestRoute[end].route[i] << " ";
+            routesFinals[x].customers[i] = bestRoute[end].customers[i];
+            std::cout << "cliente visitado: " << routesFinals[x].customers[i] << std::endl;
+            if(bestRoute[end].route[i] > 0) {
+                // std::cout << "size best: " << bestRoute[end].route.size() << std::endl;
+                // std::cout << "size customers: " << routesFinals[x].customers.size() << std::endl;
+                // std::cout << "eh cliente" << std::endl;
+                routesFinals[x].assigned_lockers[i] = -1;
+            } else {
+                // std::cout << "eh locker" << std::endl;
+                routesFinals[x].assigned_lockers[i] = abs(bestRoute[end].route[i]);
+            }
+            // std::cout << bestRoute[end].route[i] << " ";
         }
         end = init;
         j++;
+        x++;
         std::cout << std::endl;
     }
     // std::cout << "f(0,2): " << calcDistanceRoute(0,2) << std::endl; // 0,1
+
+    return routesFinals;
+
 }
 
 // bool Split::dominates(int back, int prev, int t, int capacity)
@@ -219,6 +242,7 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
     
     // double distance = ::distance(this->depot.position, initClient.position);
     double distance = 0.0;
+    double load = 0.0;
     double fleetTime = distance;
     // if(fleetTime < initClient.time_window.start) {
     //     fleetTime = initClient.time_window.start;
@@ -260,25 +284,18 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
                     std::cout << "locker melhor: " << x << std::endl;
                     locationChosen = -(locker->id);
                     dataRoute->route.push_back((int)locationChosen);
+                    dataRoute->route.push_back((int)locationChosen);
                     dataRoute->lockers.insert(locker->id);
 
+                    dataRoute->customers.push_back((int)clientA.id);
+                    dataRoute->customers.push_back((int)clientB.id);
+                    load += clientA.demand;
+                    load += clientB.demand;
                     useClient = false;
-
-                    std::cout << "adicionou cliente " << clientA.id << " no locker " << locker->id << std::endl;
-                    std::cout << "adicionou cliente " << clientB.id << " no locker " << locker->id << std::endl;
-
-                    if(dataRoute->lockers.count(locker->id) != 0) {
-                        std::cout << "locker usado" << std::endl;
-                    } else {
-                        std::cout << "locker NAO usado" << std::endl;
-
-                    }
 
                     dangerFleetTime = false;
                     dataRoute->isValid = true;
-                    std::cout << "distance antes de adicionar locker (dois clientes) " << locker->id << ": " << distance << std::endl;
                     distance += ::distance(prev,locker->position);
-                    std::cout << "distance depois de adicionar locker (dois clientes) " << locker->id << ": " << distance << std::endl;
                     x++; // soma para nao visitar o cliente b novamente
                     // std::cout << "locker melhor: " << x << std::endl; 
                 } else {
@@ -301,7 +318,10 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
                 if(verifyBestLocker(locker.value(),prev,cumulative_cost,distanceTemporary,dataRoute->lockers)) { // se for true entao eh melhor adicionar no locker
                     // std::cout << "locker melhor: " << x << std::endl;
                     locationChosen = -(locker.value().id);
-                    // dataRoute->route.push_back((int)locationChosen);
+                    dataRoute->route.push_back((int)locationChosen);
+
+                    dataRoute->customers.push_back((int)clientA.id);
+                    load += clientA.demand;
                     // dataRoute->lockers.insert(locker->id);
 
                     std::cout << "adicionou cliente tambem " << clientA.id << " no locker " << locker->id << std::endl;
@@ -351,7 +371,9 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
         if(useClient) {
             std::cout << "cliente melhor" << std::endl;
             dataRoute->route.push_back((int)clientA.id);
+            dataRoute->customers.push_back((int)clientA.id);
             locationChosen = clientA.id;
+            load += clientA.demand;
             distance += ::distance(prev,clientA.position);
             std::cout << "distance depois de adicionar cliente " << clientA.id << ": " << distance << std::endl;
             // std::cout << "size: " << dataRoute->route.size() << std::endl;
@@ -390,6 +412,7 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
             
             locationChosen = -(lockerAdd->id);
             dataRoute->route.pop_back(); // retira o cliente adicionado antes
+            // load -= clientA.demand;
             dataRoute->route.push_back((int)locationChosen); // adiciona o locker no lugar
             dataRoute->lockers.insert(locker->id);
            
@@ -453,6 +476,8 @@ std::optional<DataRoute> Split::calcDistanceRoute(int i, int j)
         std::cout << "entrou true" << std::endl;
         std::cout << "distancia final (calcDistance): " << distance << std::endl;
         dataRoute->distance = distance;
+        dataRoute->time = fleetTime;
+        dataRoute->load = load;
         // dataRoute->route.push_back(index);
     }
     

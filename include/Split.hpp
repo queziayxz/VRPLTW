@@ -13,8 +13,11 @@
 struct DataRoute {
     std::vector<int> route{};                           // ids positivos sao clientes, negativos sao lockers
     double distance = 0.0;
+    double time = 0.0;
+    double load = 0.0;
     bool isValid = true;
     std::unordered_set<int> lockers;              // guarda os ids dos locker utilizados naquela rota
+    std::vector<int> customers{};
 };
 
 class Split {
@@ -35,7 +38,7 @@ class Split {
 
     public:
         Split(Instance instance, Individual individual);
-        void splitLinear();
+        std::vector<Route> splitLinear();
 
         bool dominates(int back, int prev, int t, int capacity);
         int indexDominates(int a, int b, int capacity);

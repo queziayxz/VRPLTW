@@ -26,26 +26,34 @@ auto main() -> int {
     };
 
     Split split(instance,individuo);
-    split.splitLinear();
+    std::vector<Route> solution = split.splitLinear();
 
     // auto solution = decode_individual(instance, individuo2);
     // // auto elapsed_time = timer.elapsed();
   
     // // std::cout << "Total da distancia: " << solution.total_distance << '\n';
-    // std::cout << "Numero de rotas: " << solution.size() << '\n';
+    std::cout << "Numero de rotas: " << solution.size() << '\n';
     // // std::cout << "Tempo total (ms): " << elapsed_time << '\n';
 
-    // for(auto i = 0u; i < solution.size(); i++) {
-    //   std::cout << "Rota (" << solution[i].total_distance << ")(" << solution[i].load << "):";
-    //   for(auto j = 0u; j < solution[i].customers.size(); j++) {
-    //     if(solution[i].assigned_lockers[j] == -1) {
-    //       std::cout << "Cliente " << solution[i].customers[j] << ", ";
-    //     } else {
-    //       std::cout << "Locker " << solution[i].assigned_lockers[j] << ", ";
-    //     }
-    //   }
-    //   std::cout << std::endl;
-    // }
+    for(auto i = 0u; i < solution.size(); i++) {
+      std::cout << "Rota (" << solution[i].total_distance << ")(" << solution[i].load << "): ";
+      for(auto j = 0u; j < solution[i].customers.size(); j++) {
+        if(solution[i].assigned_lockers[j] == -1) {
+          std::cout << "C" << solution[i].customers[j] << " - ";
+          continue;
+        }
+        int locker = solution[i].assigned_lockers[j];
+        std::cout << "L" << locker;
+        std::cout << "(";
+        while(solution[i].assigned_lockers[j] == locker) {
+          std::cout << solution[i].customers[j] << ",";
+          j++;
+        }
+        std::cout << ") - ";
+        j--;
+      }
+      std::cout << std::endl;
+    }
 
   } catch(std::runtime_error&e) {
     std::cout << e.what() << std::endl;
