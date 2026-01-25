@@ -8,7 +8,7 @@
 auto main() -> int {
 
   try {
-    auto instance = read_instance("../instances/n20w20l2_1.vrpl");
+    auto instance = read_instance("../instances/n100w100l10_5.vrpl");
   
     
     Individual individuo = {

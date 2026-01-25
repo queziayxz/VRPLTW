@@ -21,7 +21,7 @@ Split::Split(Instance&instance)
     this->pred = std::vector<int>(instance.clients.size()+1);
 }
 
-std::vector<Route> Split::splitLinear(Individual individual)
+std::vector<Route> Split::splitLinear(Individual&individual)
 {
     this->individual = individual;
 

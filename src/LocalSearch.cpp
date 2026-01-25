@@ -194,16 +194,16 @@ double LocalSearch::fitnessFunction(std::vector<int> tour)
     return distance;
 }
 
-double evaluate_fitness(const std::vector<Route>& routes) {
-  auto total_distance = 0.0;
+// double evaluate_fitness(const std::vector<Route>& routes) {
+//   auto total_distance = 0.0;
 
-  for (int i = 0; i < routes.size(); i++) {
-    total_distance += routes[i].total_distance;
-    for(int j = 0; j < routes[i].customers.size(); j++) {
-      if(routes[i].assigned_lockers[j] > 0) {
-        total_distance += ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
-      }
-    }
-  }
-  return total_distance;
-}
+//   for (int i = 0; i < routes.size(); i++) {
+//     total_distance += routes[i].total_distance;
+//     for(int j = 0; j < routes[i].customers.size(); j++) {
+//       if(routes[i].assigned_lockers[j] > 0) {
+//         total_distance += ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
+//       }
+//     }
+//   }
+//   return total_distance;
+// }

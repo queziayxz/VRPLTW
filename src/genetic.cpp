@@ -297,7 +297,7 @@ auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned ge
     while (new_population.size() < population_size) {
       auto [parent1, parent2] = select_parents(population);
       auto offspring = crossover(parent1, parent2);
-      offspring = localSearch.iteratedGreedy(offspring,5);
+      // offspring = localSearch.iteratedGreedy(offspring,5);
       offspring.fitness = evaluate_fitness(split.splitLinear(offspring),instance);
       new_population.push_back(offspring);
     }
