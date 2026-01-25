@@ -4,69 +4,114 @@
 #include "LocalSearch.hpp"
 #include "timer.hpp"
 #include <iostream>
+#include <array>
+#include <fstream>
+#include <string>
 
 auto main() -> int {
+  constexpr auto instances = std::array{
+    "n20w100l2_1",
+    "n20w100l2_2",
+    "n20w100l2_3",
+    "n20w100l2_4",
+    "n20w100l2_5",
+    "n20w20l2_1",
+    "n20w20l2_2",
+    "n20w20l2_3",
+    "n20w20l2_4",
+    "n20w20l2_5",
+    "n40w100l4_1",
+    "n40w100l4_2",
+    "n40w100l4_3",
+    "n40w100l4_4",
+    "n40w100l4_5",
+    "n40w20l4_1",
+    "n40w20l4_2",
+    "n40w20l4_3",
+    "n40w20l4_4",
+    "n40w20l4_5",
+    "n60w100l6_1",
+    "n60w100l6_2",
+    "n60w100l6_3",
+    "n60w100l6_4",
+    "n60w100l6_5",
+    "n60w20l6_1",
+    "n60w20l6_2",
+    "n60w20l6_3",
+    "n60w20l6_4",
+    "n60w20l6_5",
+    "n100w100l10_1",
+    "n100w100l10_2",
+    "n100w100l10_3",
+    "n100w100l10_4",
+    "n100w100l10_5",
+    "n100w20l10_1",
+    "n100w20l10_2",
+    "n100w20l10_3",
+    "n100w20l10_5",
+  };
 
-  try {
-    auto instance = read_instance("instances/n20w20l2_1.vrpl");
-  
-    
-    Individual individuo = {
-      {3, 12, 10, 18, 17, 19, 9, 16, 6, 20, 13, 4, 7, 14, 2, 15, 1, 5, 11, 8},
-      10.0
-    };
-    Individual individuo2 = {
-      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
-        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 
-        32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 
-        50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 
-        70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 
-        91, 92, 93, 94, 95, 96, 97, 98, 99},
-      10.0
-    };
+  constexpr auto instance_prefix = std::string{"../instances/"};
+  constexpr auto instance_suffix = ".vrpl";
 
-    // LocalSearch localSearch(instance);
-    // Individual individual = localSearch.iteratedGreedy(individuo,5);
+  auto results = std::ofstream{"../results.txt"};
 
-    // localSearch.redePert(individuo.chromosome);
+  results << "Instance BestCost BestTime(s) AvgCost AvgTime(s)\n";
 
-    // Split split(instance);
-    // std::vector<Route> solution = split.splitLinear(individuo);
+  for (auto instance_id = 1; unsigned(instance_id) <= instances.size(); ++instance_id) {
+    const auto* instance_name = instances[unsigned(instance_id) - 1];
 
-    // std::cout << "indiviuo com id 2: " << instance.clients.at(2).demand << std::endl;
+    std::cout << "> Running instance: " << instance_name << " (" << instance_id << '/' << instances.size() << ")\n";
 
-    auto timer = Timer{};
-    auto solution = genetic_algorithm(instance, 50, 100, 0.05);
-    auto elapsed_time = timer.elapsed();
-    // auto solution = decode_individual(instance, individuo2);
-  
-    std::cout << "Custo total: " << solution.total_distance << '\n';
-    std::cout << "Numero de rotas: " << solution.routes.size() << '\n';
-    std::cout << "Tempo total (ms): " << elapsed_time << '\n';
+    auto total_time = 0.0;
+    auto total_cost = 0.0;
+    auto best_time = 0.0;
+    auto best_cost = std::numeric_limits<double>::max();
 
-    for(auto i = 0u; i < solution.routes.size(); i++) {
-      std::cout << "Rota (" << solution.routes[i].total_distance << ")(" << solution.routes[i].load << "): ";
-      for(auto j = 0u; j < solution.routes[i].customers.size(); j++) {
-        if(solution.routes[i].assigned_lockers[j] == -1) {
-          std::cout << "C" << solution.routes[i].customers[j] << " - ";
-          continue;
-        }
-        int locker = solution.routes[i].assigned_lockers[j];
-        std::cout << "L" << locker;
-        std::cout << "(";
-        while(solution.routes[i].assigned_lockers[j] == locker) {
-          std::cout << solution.routes[i].customers[j] << ",";
-          j++;
-        }
-        std::cout << ") - ";
-        j--;
+    constexpr auto runs = 5;
+
+    auto instance = read_instance(instance_prefix + instance_name + instance_suffix);
+
+    for (auto i = 0; i < runs; ++i) {
+      auto timer = Timer{};
+      auto solution = genetic_algorithm(instance, 60, 100, 0.05);
+      auto elapsed_time = timer.elapsed() / 1000.0;
+
+      total_time += elapsed_time;
+      total_cost += solution.total_distance;
+      
+      if (solution.total_distance < best_cost) {
+        best_cost = solution.total_distance;
+        best_time = elapsed_time;
       }
-      std::cout << std::endl;
     }
 
-  } catch(std::runtime_error&e) {
-    std::cout << e.what() << std::endl;
+    results << instance_name << " "
+            << best_cost << " "
+            << best_time << " "
+            << (total_cost / runs) << " "
+            << (total_time / runs) << '\n';
   }
+
+  //   for(auto i = 0u; i < solution.routes.size(); i++) {
+  //     std::cout << "Rota (" << solution.routes[i].total_distance << ")(" << solution.routes[i].load << "): ";
+  //     for(auto j = 0u; j < solution.routes[i].customers.size(); j++) {
+  //       if(solution.routes[i].assigned_lockers[j] == -1) {
+  //         std::cout << "C" << solution.routes[i].customers[j] << " - ";
+  //         continue;
+  //       }
+  //       int locker = solution.routes[i].assigned_lockers[j];
+  //       std::cout << "L" << locker;
+  //       std::cout << "(";
+  //       while(solution.routes[i].assigned_lockers[j] == locker) {
+  //         std::cout << solution.routes[i].customers[j] << ",";
+  //         j++;
+  //       }
+  //       std::cout << ") - ";
+  //       j--;
+  //     }
+  //     std::cout << std::endl;
+  //   }
 
   return 0;
 }
