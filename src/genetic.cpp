@@ -106,8 +106,8 @@ auto evaluate_fitness(const std::vector<Route>& routes, Instance&instance) -> do
   for (int i = 0; i < routes.size(); i++) {
     total_distance += routes[i].total_distance;
     for(int j = 0; j < routes[i].customers.size(); j++) {
-      if(routes[i].assigned_lockers[j] > 0) {
-        total_distance += ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
+      if(routes[i].assigned_lockers[j] != -1) {
+        total_distance += 0.5 * ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
       }
     }
   }
