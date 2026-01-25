@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.o"
   "CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.o.d"
+  "CMakeFiles/vrpltw.dir/src/Split.cpp.o"
+  "CMakeFiles/vrpltw.dir/src/Split.cpp.o.d"
   "CMakeFiles/vrpltw.dir/src/genetic.cpp.o"
   "CMakeFiles/vrpltw.dir/src/genetic.cpp.o.d"
   "CMakeFiles/vrpltw.dir/src/instance.cpp.o"

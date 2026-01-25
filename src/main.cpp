@@ -8,7 +8,7 @@
 auto main() -> int {
 
   try {
-    auto instance = read_instance("../instances/n100w100l10_5.vrpl");
+    auto instance = read_instance("instances/n20w20l2_1.vrpl");
   
     
     Individual individuo = {
@@ -36,7 +36,7 @@ auto main() -> int {
     // std::cout << "indiviuo com id 2: " << instance.clients.at(2).demand << std::endl;
 
     auto timer = Timer{};
-    auto solution = genetic_algorithm(instance, 100, 300, 0.05);
+    auto solution = genetic_algorithm(instance, 50, 100, 0.05);
     auto elapsed_time = timer.elapsed();
     // auto solution = decode_individual(instance, individuo2);
   

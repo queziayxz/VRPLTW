@@ -6,6 +6,7 @@ cmake_policy(SET CMP0009 NEW)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/*.cpp")
 set(OLD_GLOB
   "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/LocalSearch.cpp"
+  "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/Split.cpp"
   "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/genetic.cpp"
   "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/instance.cpp"
   "/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/main.cpp"

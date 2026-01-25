@@ -83,10 +83,24 @@ CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/LocalSearch.cpp -o CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.s
 
+CMakeFiles/vrpltw.dir/src/Split.cpp.o: CMakeFiles/vrpltw.dir/flags.make
+CMakeFiles/vrpltw.dir/src/Split.cpp.o: src/Split.cpp
+CMakeFiles/vrpltw.dir/src/Split.cpp.o: CMakeFiles/vrpltw.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vrpltw.dir/src/Split.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vrpltw.dir/src/Split.cpp.o -MF CMakeFiles/vrpltw.dir/src/Split.cpp.o.d -o CMakeFiles/vrpltw.dir/src/Split.cpp.o -c /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/Split.cpp
+
+CMakeFiles/vrpltw.dir/src/Split.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/vrpltw.dir/src/Split.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/Split.cpp > CMakeFiles/vrpltw.dir/src/Split.cpp.i
+
+CMakeFiles/vrpltw.dir/src/Split.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/vrpltw.dir/src/Split.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/Split.cpp -o CMakeFiles/vrpltw.dir/src/Split.cpp.s
+
 CMakeFiles/vrpltw.dir/src/genetic.cpp.o: CMakeFiles/vrpltw.dir/flags.make
 CMakeFiles/vrpltw.dir/src/genetic.cpp.o: src/genetic.cpp
 CMakeFiles/vrpltw.dir/src/genetic.cpp.o: CMakeFiles/vrpltw.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vrpltw.dir/src/genetic.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/vrpltw.dir/src/genetic.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vrpltw.dir/src/genetic.cpp.o -MF CMakeFiles/vrpltw.dir/src/genetic.cpp.o.d -o CMakeFiles/vrpltw.dir/src/genetic.cpp.o -c /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/genetic.cpp
 
 CMakeFiles/vrpltw.dir/src/genetic.cpp.i: cmake_force
@@ -100,7 +114,7 @@ CMakeFiles/vrpltw.dir/src/genetic.cpp.s: cmake_force
 CMakeFiles/vrpltw.dir/src/instance.cpp.o: CMakeFiles/vrpltw.dir/flags.make
 CMakeFiles/vrpltw.dir/src/instance.cpp.o: src/instance.cpp
 CMakeFiles/vrpltw.dir/src/instance.cpp.o: CMakeFiles/vrpltw.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/vrpltw.dir/src/instance.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/vrpltw.dir/src/instance.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vrpltw.dir/src/instance.cpp.o -MF CMakeFiles/vrpltw.dir/src/instance.cpp.o.d -o CMakeFiles/vrpltw.dir/src/instance.cpp.o -c /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/instance.cpp
 
 CMakeFiles/vrpltw.dir/src/instance.cpp.i: cmake_force
@@ -114,7 +128,7 @@ CMakeFiles/vrpltw.dir/src/instance.cpp.s: cmake_force
 CMakeFiles/vrpltw.dir/src/main.cpp.o: CMakeFiles/vrpltw.dir/flags.make
 CMakeFiles/vrpltw.dir/src/main.cpp.o: src/main.cpp
 CMakeFiles/vrpltw.dir/src/main.cpp.o: CMakeFiles/vrpltw.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/vrpltw.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/vrpltw.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vrpltw.dir/src/main.cpp.o -MF CMakeFiles/vrpltw.dir/src/main.cpp.o.d -o CMakeFiles/vrpltw.dir/src/main.cpp.o -c /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/src/main.cpp
 
 CMakeFiles/vrpltw.dir/src/main.cpp.i: cmake_force
@@ -128,6 +142,7 @@ CMakeFiles/vrpltw.dir/src/main.cpp.s: cmake_force
 # Object files for target vrpltw
 vrpltw_OBJECTS = \
 "CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.o" \
+"CMakeFiles/vrpltw.dir/src/Split.cpp.o" \
 "CMakeFiles/vrpltw.dir/src/genetic.cpp.o" \
 "CMakeFiles/vrpltw.dir/src/instance.cpp.o" \
 "CMakeFiles/vrpltw.dir/src/main.cpp.o"
@@ -136,12 +151,13 @@ vrpltw_OBJECTS = \
 vrpltw_EXTERNAL_OBJECTS =
 
 vrpltw: CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.o
+vrpltw: CMakeFiles/vrpltw.dir/src/Split.cpp.o
 vrpltw: CMakeFiles/vrpltw.dir/src/genetic.cpp.o
 vrpltw: CMakeFiles/vrpltw.dir/src/instance.cpp.o
 vrpltw: CMakeFiles/vrpltw.dir/src/main.cpp.o
 vrpltw: CMakeFiles/vrpltw.dir/build.make
 vrpltw: CMakeFiles/vrpltw.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable vrpltw"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable vrpltw"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vrpltw.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

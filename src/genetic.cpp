@@ -91,13 +91,37 @@ auto crossover(const Individual& parent1, const Individual& parent2) -> Individu
   return result;
 }
 
-auto mutate(Individual& individual, double mutation_rate) -> void {
-  for (auto i = 0u; i < individual.chromosome.size(); ++i) {
-    if (Random::get_real(0.0, 1.0) < mutation_rate) { // calcula a probabilidade de realizar a mutacao
-      auto j = Random::get_int(0u, (unsigned)individual.chromosome.size() - 1u);
-      std::swap(individual.chromosome[i], individual.chromosome[j]); // swap na giant tour
+void opt_2(std::vector<int>&route, int i, int j)
+{
+    int aux = 0;
+    int x = i < j ? i : j;
+    int y = i > j ? i : j;
+
+    if(x >= 0 && y < route.size()) {
+        while(x < y) {
+            aux = route[(unsigned)y];
+            route[(unsigned)y] = route[(unsigned)x];
+            route[(unsigned)x] = aux;
+            y--;
+            x++;
+        }
     }
+}
+
+auto mutate(Individual& individual, double mutation_rate) -> void {
+  // for (auto i = 0u; i < individual.chromosome.size(); ++i) {
+  //   if (Random::get_real(0.0, 1.0) < mutation_rate) { // calcula a probabilidade de realizar a mutacao
+  //     auto j = Random::get_int(0u, (unsigned)individual.chromosome.size() - 1u);
+  //     std::swap(individual.chromosome[i], individual.chromosome[j]); // swap na giant tour
+  //   }
+  // }
+
+  for(int i = 0; i < individual.chromosome.size(); i++) {
+      for(int j = i+1; j < individual.chromosome.size(); j++) {
+          opt_2(individual.chromosome,i,j);
+      }
   }
+
 }
 
 auto evaluate_fitness(const std::vector<Route>& routes, Instance&instance) -> double {
@@ -202,86 +226,86 @@ auto try_locker(double vehicle_capacity, const Point& prev_position, const Clien
   return best_locker;
 }
 
-// auto decode_individual(Instance& instance, const Individual& individual) -> std::vector<Route> {
-//   // Split the chromosome into routes based on vehicle capacity, time windows, and locker assignments
-//   auto routes = std::vector<Route>{};
-//   std::queue<int> clients;
+auto decode_individual(Instance& instance, const Individual& individual) -> std::vector<Route> {
+  // Split the chromosome into routes based on vehicle capacity, time windows, and locker assignments
+  auto routes = std::vector<Route>{};
+  std::queue<int> clients;
 
-//   auto locker_remaining_capacities = std::vector<double>(instance.lockers.size());
-//   for (auto i = 0u; i < instance.lockers.size(); ++i) {
-//     locker_remaining_capacities[i] = instance.lockers[i].capacity;
-//   }
+  auto locker_remaining_capacities = std::vector<double>(instance.lockers.size());
+  for (auto i = 0u; i < instance.lockers.size(); ++i) {
+    locker_remaining_capacities[i] = instance.lockers[i].capacity;
+  }
 
-//   // for(Client cliente : instance.customers) {
-//   //   clients.push(client.id);
-//   // }
+  // for(Client cliente : instance.customers) {
+  //   clients.push(client.id);
+  // }
 
-//   auto current_route = Route{};
-//   auto current_time = instance.depot.time_window.start; // pega o tempo atual da rota
-//   auto previous_position = instance.depot.position;     // posicao atual na rota
+  auto current_route = Route{};
+  auto current_time = instance.depot.time_window.start; // pega o tempo atual da rota
+  auto previous_position = instance.depot.position;     // posicao atual na rota
   
-//   std::vector<Locker> delivery_locations{};             // vetor dos lockers possiveis para o cliente
+  std::vector<Locker> delivery_locations{};             // vetor dos lockers possiveis para o cliente
 
-//   size_t i = 0;
-//   while(i < individual.chromosome.size()) {
-//     std::cout << "num clientes: " << individual.chromosome.size() << std::endl;
-//     int gene = individual.chromosome[i];
-//     std::cout << "pegoou: " << i << std::endl;
-//     std::cout << "gene: " << gene << std::endl;
-//     const auto& client = instance.clients.at(gene);
-//     bool add = false;
+  size_t i = 0;
+  while(i < individual.chromosome.size()) {
+    std::cout << "num clientes: " << individual.chromosome.size() << std::endl;
+    int gene = individual.chromosome[i];
+    std::cout << "pegoou: " << i << std::endl;
+    std::cout << "gene: " << gene << std::endl;
+    const auto& client = instance.clients.at(gene);
+    bool add = false;
     
-//     delivery_locations = client.delivery_locations;
-//     std::cout << "client: " << client.id << std::endl;
+    delivery_locations = client.delivery_locations;
+    std::cout << "client: " << client.id << std::endl;
 
-//     auto locker = try_locker(instance.vehicle_capacity, previous_position, client,
-//         locker_remaining_capacities, delivery_locations, current_time, current_route.load, current_time);
+    auto locker = try_locker(instance.vehicle_capacity, previous_position, client,
+        locker_remaining_capacities, delivery_locations, current_time, current_route.load, current_time);
 
-//     if (locker > -1) {
-//       std::cout << "locker bom: " << locker << std::endl;
-//       current_route.customers.push_back(gene);
-//       current_route.assigned_lockers.push_back(locker);
-//       current_route.load += client.demand;
-//       current_route.total_distance += distance(previous_position, instance.lockers[(unsigned)locker].position);
-//       previous_position = instance.lockers[(unsigned)locker].position;
-//       locker_remaining_capacities[(unsigned)locker] -= client.demand;
-//       std::cout << "adicionou locker: " << std::endl;
-//       add = true;
-//     } else if (can_serve_client(instance.vehicle_capacity, previous_position, client, instance.depot, current_time, current_route.load, current_time)) {
-//       std::cout << "chamou cliente: " << std::endl;
-//       current_route.customers.push_back(gene); // adiciona cliente na rota
-//       current_route.assigned_lockers.push_back(-1); // coloca -1 pra informar que nao usou esse locker
-//       current_route.load += client.demand; // adiciona a demanda do cliente no veiculo
-//       current_route.total_distance += distance(previous_position, client.position); 
-//       previous_position = client.position; // seta a posicao atual
-//       std::cout << "adicionou cliente: " << std::endl;
-//       add = true;
-//     }
+    if (locker > -1) {
+      std::cout << "locker bom: " << locker << std::endl;
+      current_route.customers.push_back(gene);
+      current_route.assigned_lockers.push_back(locker);
+      current_route.load += client.demand;
+      current_route.total_distance += distance(previous_position, instance.lockers[(unsigned)locker].position);
+      previous_position = instance.lockers[(unsigned)locker].position;
+      locker_remaining_capacities[(unsigned)locker] -= client.demand;
+      std::cout << "adicionou locker: " << std::endl;
+      add = true;
+    } else if (can_serve_client(instance.vehicle_capacity, previous_position, client, instance.depot, current_time, current_route.load, current_time)) {
+      std::cout << "chamou cliente: " << std::endl;
+      current_route.customers.push_back(gene); // adiciona cliente na rota
+      current_route.assigned_lockers.push_back(-1); // coloca -1 pra informar que nao usou esse locker
+      current_route.load += client.demand; // adiciona a demanda do cliente no veiculo
+      current_route.total_distance += distance(previous_position, client.position); 
+      previous_position = client.position; // seta a posicao atual
+      std::cout << "adicionou cliente: " << std::endl;
+      add = true;
+    }
 
-//     if(add) {
-//       i++;
-//     } else {
-//       std::cout << "nao adicionou em nehuma rota cliente: " << client.id << std::endl;
-//       std::cout << "clientes faltantes: " << individual.chromosome.size()-1 - i << std::endl;
+    if(add) {
+      i++;
+    } else {
+      std::cout << "nao adicionou em nehuma rota cliente: " << client.id << std::endl;
+      std::cout << "clientes faltantes: " << individual.chromosome.size()-1 - i << std::endl;
       
-//       // se chegar até aqui, nem o locker ou veiculo nao tem capacidade 
-//       // para adicionar essa demanda ou erro na janela de tempo do cliente
-//       routes.push_back(current_route);
+      // se chegar até aqui, nem o locker ou veiculo nao tem capacidade 
+      // para adicionar essa demanda ou erro na janela de tempo do cliente
+      routes.push_back(current_route);
   
-//       current_route = Route{};
-//       current_time = instance.depot.time_window.start;
-//       previous_position = instance.depot.position;
+      current_route = Route{};
+      current_time = instance.depot.time_window.start;
+      previous_position = instance.depot.position;
   
-//       std::cout << "quant rootas: " << routes.size() << std::endl;
-//     }
+      std::cout << "quant rootas: " << routes.size() << std::endl;
+    }
 
 
-//   }
+  }
   
-//   std::cout << "terminou " << std::endl;
-//   routes.push_back(current_route);
-//   return routes;
-// }
+  std::cout << "terminou " << std::endl;
+  routes.push_back(current_route);
+  return routes;
+}
 
 auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned generations, double mutation_rate) -> Solution 
 {
@@ -297,16 +321,22 @@ auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned ge
     while (new_population.size() < population_size) {
       auto [parent1, parent2] = select_parents(population);
       auto offspring = crossover(parent1, parent2);
-      // offspring = localSearch.iteratedGreedy(offspring,5);
+      // mutate(offspring,mutation_rate);
+      offspring = localSearch.iteratedGreedy(offspring,8);
       offspring.fitness = evaluate_fitness(split.splitLinear(offspring),instance);
       new_population.push_back(offspring);
     }
 
     population = std::move(new_population);
+
+    // std::cout << "geracao: " << gen << std::endl;
+
   }
 
+  // population[0].fitness = evaluate_fitness(decode_individual(population[0],instance),instance);
   auto* best_individual = &population[0];
   for (auto& individual : population) {
+    // individual.fitness = evaluate_fitness(decode_individual(individual,instance),instance);
     if (individual.fitness < best_individual->fitness) {
       best_individual = &individual;
     }

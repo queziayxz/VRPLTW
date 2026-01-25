@@ -154,6 +154,30 @@ src/LocalSearch.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vrpltw.dir/build.make CMakeFiles/vrpltw.dir/src/LocalSearch.cpp.s
 .PHONY : src/LocalSearch.cpp.s
 
+src/Split.o: src/Split.cpp.o
+.PHONY : src/Split.o
+
+# target to build an object file
+src/Split.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vrpltw.dir/build.make CMakeFiles/vrpltw.dir/src/Split.cpp.o
+.PHONY : src/Split.cpp.o
+
+src/Split.i: src/Split.cpp.i
+.PHONY : src/Split.i
+
+# target to preprocess a source file
+src/Split.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vrpltw.dir/build.make CMakeFiles/vrpltw.dir/src/Split.cpp.i
+.PHONY : src/Split.cpp.i
+
+src/Split.s: src/Split.cpp.s
+.PHONY : src/Split.s
+
+# target to generate assembly for a file
+src/Split.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vrpltw.dir/build.make CMakeFiles/vrpltw.dir/src/Split.cpp.s
+.PHONY : src/Split.cpp.s
+
 src/genetic.o: src/genetic.cpp.o
 .PHONY : src/genetic.o
 
@@ -238,6 +262,9 @@ help:
 	@echo "... src/LocalSearch.o"
 	@echo "... src/LocalSearch.i"
 	@echo "... src/LocalSearch.s"
+	@echo "... src/Split.o"
+	@echo "... src/Split.i"
+	@echo "... src/Split.s"
 	@echo "... src/genetic.o"
 	@echo "... src/genetic.i"
 	@echo "... src/genetic.s"

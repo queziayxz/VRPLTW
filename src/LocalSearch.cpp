@@ -15,38 +15,39 @@ LocalSearch::LocalSearch(Instance instance)
 Individual LocalSearch::iteratedGreedy(Individual individual, int destruction_rate)
 {
     Individual best = individual;
+    // Route aux = individual;
     double best_fitness = fitnessFunction(individual.chromosome);
     
 
-    Individual offspring = individual;
+    Individual offspring{};
     std::vector<int> indices((int)destruction_rate);
     int it = 0;
-    int maxIter = 1;
+    int maxIter = 5;
     int index = 0;
     double fitness = 0;
 
     while(it < maxIter) {
         
         offspring = best;
+        // index = Random::get_int(0u, (unsigned)individual.routes.size()-1u);
         
         //destroi
-        // for(int i = 0; i < destruction_rate; i++) {
-        //     index = Random::get_int(0u, (unsigned)offspring.chromosome.size()-1u);
-        //     indices[i] = offspring.chromosome[index];
-        //     offspring.chromosome.erase(offspring.chromosome.begin()+index);
-        // }
+        for(int i = 0; i < destruction_rate; i++) {
+            indices[i] = offspring.chromosome[index];
+            offspring.chromosome.erase(offspring.chromosome.begin()+index);
+        }
 
         // reconstroi com neh
-        // fitness = neh(offspring.chromosome,indices,best_fitness);
+        fitness = neh(offspring.chromosome,indices,best_fitness);
 
         // faz busca local com 2-opt best improvement
         for(int i = 0; i < offspring.chromosome.size(); i++) {
             for(int j = i+1; j < offspring.chromosome.size(); j++) {
-                individual.chromosome = opt_2(offspring.chromosome,i,j);
-                fitness = fitnessFunction(individual.chromosome);
+                opt_2(offspring.chromosome,i,j);
+                fitness = fitnessFunction(offspring.chromosome);
                 if(fitness < best_fitness) {
                     best_fitness = fitness;
-                    best = individual;
+                    best = offspring;
                     break;
                 }
             }
@@ -73,7 +74,7 @@ double LocalSearch::neh(std::vector<int>&tour, std::vector<int> indices, double 
     double best_indice = 1;
     double best_fitness = INF;
 
-    std::vector<std::tuple<double, double, double>> rede_pert = redePert(tour);
+    // std::vector<std::tuple<double, double, double>> rede_pert = redePert(tour);
 
     for(int i = 0; i < indices.size(); i++) {
         for(int j = 1; j < tour.size()-1; j++) { // so verificar para o meio da tour e nao as extremidades
@@ -91,24 +92,27 @@ double LocalSearch::neh(std::vector<int>&tour, std::vector<int> indices, double 
     return total_distance;
 }
 
-std::vector<int> LocalSearch::opt_2(std::vector<int> tour, int i, int j)
+void LocalSearch::opt_2(std::vector<int>&individual, int i, int j)
 {
-    std::vector<int> route = tour;
+    // Individual indiv = individual;
     int aux = 0;
     int x = i < j ? i : j;
     int y = i > j ? i : j;
 
-    if(x >= 0 && y < route.size()) {
+    if(x >= 0 && y < individual.size()) {
         while(x < y) {
-            aux = route[(unsigned)y];
-            route[(unsigned)y] = route[(unsigned)x];
-            route[(unsigned)x] = aux;
+            aux = individual[(unsigned)y];
+            // aux_locker = indiv.lockers[(unsigned)y];
+            individual[(unsigned)y] = individual[(unsigned)x];
+            // indiv.lockers[(unsigned)y] = indiv.lockers[(unsigned)x];
+            individual[(unsigned)x] = aux;
+            // indiv.lockers[(unsigned)x] = aux_locker;
             y--;
             x++;
         }
     }
 
-    return route;
+    // return route;
 }
 
 std::vector<std::tuple<double, double, double>> LocalSearch::redePert(std::vector<int>& tour) {
@@ -194,14 +198,15 @@ double LocalSearch::fitnessFunction(std::vector<int> tour)
     return distance;
 }
 
-// double evaluate_fitness(const std::vector<Route>& routes) {
+// double evaluate_fitness(const std::vector<Route>& routes) 
+// {
 //   auto total_distance = 0.0;
 
 //   for (int i = 0; i < routes.size(); i++) {
 //     total_distance += routes[i].total_distance;
 //     for(int j = 0; j < routes[i].customers.size(); j++) {
-//       if(routes[i].assigned_lockers[j] > 0) {
-//         total_distance += ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
+//       if(routes[i].assigned_lockers[j] != -1) {
+//         total_distance += 0.5 * ::distance(this->instance.clients.at(routes[i].customers[j]).position,this->instance.lockers.at(routes[i].assigned_lockers[j]).position);
 //       }
 //     }
 //   }
