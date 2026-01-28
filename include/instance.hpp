@@ -42,6 +42,9 @@ struct Instance {
 
 auto read_instance(const std::string& filepath) -> Instance;
 void defineDeliveryLocations(Instance&instance);
+
+void resultAllInstances();
+void resultOnlyInstance(std::string instanceName);
 // Client getClientById(Instance&instance, unsigned id);
 
 #endif // INSTANCE_HPP

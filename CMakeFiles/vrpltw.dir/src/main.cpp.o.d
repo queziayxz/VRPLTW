@@ -240,4 +240,10 @@ CMakeFiles/vrpltw.dir/src/main.cpp.o: \
  /usr/include/c++/13/span /usr/include/c++/13/variant \
  /usr/include/c++/13/bits/ranges_algobase.h \
  /home/quezia/projects/ufjf/inteligComputacional/VRPLTW/HGS-CVRP/include/timer.hpp \
- /usr/include/c++/13/iostream
+ /usr/include/c++/13/iostream /usr/include/c++/13/fstream \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++io.h \
+ /usr/include/c++/13/bits/fstream.tcc /usr/include/c++/13/filesystem \
+ /usr/include/c++/13/bits/fs_fwd.h /usr/include/c++/13/bits/fs_path.h \
+ /usr/include/c++/13/codecvt /usr/include/c++/13/bits/fs_dir.h \
+ /usr/include/c++/13/bits/fs_ops.h
