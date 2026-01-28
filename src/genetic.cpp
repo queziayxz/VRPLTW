@@ -97,7 +97,7 @@ void opt_2(std::vector<int>&route, int i, int j)
     int x = i < j ? i : j;
     int y = i > j ? i : j;
 
-    if(x >= 0 && y < route.size()) {
+    if(x >= 0 && y < static_cast<int>(route.size())) {
         while(x < y) {
             aux = route[(unsigned)y];
             route[(unsigned)y] = route[(unsigned)x];
@@ -109,29 +109,29 @@ void opt_2(std::vector<int>&route, int i, int j)
 }
 
 auto mutate(Individual& individual, double mutation_rate) -> void {
-  // for (auto i = 0u; i < individual.chromosome.size(); ++i) {
-  //   if (Random::get_real(0.0, 1.0) < mutation_rate) { // calcula a probabilidade de realizar a mutacao
-  //     auto j = Random::get_int(0u, (unsigned)individual.chromosome.size() - 1u);
-  //     std::swap(individual.chromosome[i], individual.chromosome[j]); // swap na giant tour
-  //   }
-  // }
-
-  for(int i = 0; i < individual.chromosome.size(); i++) {
-      for(int j = i+1; j < individual.chromosome.size(); j++) {
-          opt_2(individual.chromosome,i,j);
-      }
+  for (auto i = 0u; i < individual.chromosome.size(); ++i) {
+    if (Random::get_real(0.0, 1.0) < mutation_rate) { // calcula a probabilidade de realizar a mutacao
+      auto j = Random::get_int(0u, (unsigned)individual.chromosome.size() - 1u);
+      std::swap(individual.chromosome[i], individual.chromosome[j]); // swap na giant tour
+    }
   }
+
+  // for(int i = 0; i < individual.chromosome.size(); i++) {
+  //     for(int j = i+1; j < individual.chromosome.size(); j++) {
+  //         opt_2(individual.chromosome,i,j);
+  //     }
+  // }
 
 }
 
 auto evaluate_fitness(const std::vector<Route>& routes, Instance&instance) -> double {
   auto total_distance = 0.0;
 
-  for (int i = 0; i < routes.size(); i++) {
-    total_distance += routes[i].total_distance;
-    for(int j = 0; j < routes[i].customers.size(); j++) {
-      if(routes[i].assigned_lockers[j] != -1) {
-        total_distance += 0.5 * ::distance(instance.clients.at(routes[i].customers[j]).position,instance.lockers.at(routes[i].assigned_lockers[j]).position);
+  for (int i = 0; i < static_cast<int>(routes.size()); i++) {
+    total_distance += routes[(unsigned)i].total_distance;
+    for(int j = 0; j < static_cast<int>(routes[(unsigned)i].customers.size()); j++) {
+      if(routes[(unsigned)i].assigned_lockers[(unsigned)j] != -1) {
+        total_distance += 0.5 * ::distance(instance.clients.at(routes[(unsigned)i].customers[(unsigned)j]).position,instance.lockers.at(routes[(unsigned)i].assigned_lockers[(unsigned)j]).position);
       }
     }
   }
@@ -142,7 +142,6 @@ auto can_serve_client(double vehicle_capacity, const Point& prev_position, const
   double current_time, double current_load, double& new_time
 ) -> bool {
   if (current_load + client.demand > vehicle_capacity) {
-    std::cout << "caiu demanda ultrapassa" << std::endl;
     return false;
   }
   
@@ -150,20 +149,10 @@ auto can_serve_client(double vehicle_capacity, const Point& prev_position, const
   auto start = std::max(arrival, client.time_window.start);
   
   if (start > client.time_window.end) {
-    std::cout << "caiu time window" << std::endl;
-    std::cout << "curren_time: " << current_time << std::endl;
-    std::cout << "prev_position,x: " << prev_position.x << std::endl;
-    std::cout << "prev_position.y: " << prev_position.y << std::endl;
-    std::cout << "client.position.x: " << client.position.x << std::endl;
-    std::cout << "client.position.y: " << client.position.y << std::endl;
-    std::cout << "distance: " << distance(prev_position, client.position) << std::endl;
-    std::cout << "start: " << start << std::endl;
-    std::cout << "client.time_window.end: " << client.time_window.end << std::endl;
     return false;
   }
   
   if (start + distance(client.position, depot.position) > depot.time_window.end) {
-    std::cout << "caiu time window 2" << std::endl;
     return false;
   }
 
@@ -192,20 +181,8 @@ auto try_locker(double vehicle_capacity, const Point& prev_position, const Clien
     double cost_prev_client = distance(prev_position,client.position);
 
     if(cost+cost_locker_client > cost_prev_client) {
-      // std::cout << "nao vantajoso locker: " << locker.id << std::endl;
-      // std::cout << "size lockers: " << lockers.size() << std::endl;
-      // std::cout << "cost: " << cost << std::endl;
-      // std::cout << "cost_locker_client: " << cost_locker_client << std::endl;
-      // std::cout << "cost_prev_client: " << cost_prev_client << std::endl;
       continue;
     }
-    
-    // std::cout << "nao deu continue locker: " << locker.id << std::endl;
-    // std::cout << "cliente: " << client.id << std::endl;
-    // std::cout << "cost: " << cost << std::endl;
-    // std::cout << "cost_locker_client: " << cost_locker_client << std::endl;
-    // std::cout << "cost_prev_client: " << cost_prev_client << std::endl;
-
 
     if (cost >= best_cost) {
       continue;
@@ -232,8 +209,8 @@ auto decode_individual(Instance& instance, const Individual& individual) -> std:
   std::queue<int> clients;
 
   auto locker_remaining_capacities = std::vector<double>(instance.lockers.size());
-  for (auto i = 0u; i < instance.lockers.size(); ++i) {
-    locker_remaining_capacities[i] = instance.lockers[i].capacity;
+  for (int i = 0; i < static_cast<int>(instance.lockers.size()); ++i) {
+    locker_remaining_capacities[(unsigned)i] = instance.lockers[(int)i].capacity;
   }
 
   // for(Client cliente : instance.customers) {
@@ -266,8 +243,8 @@ auto decode_individual(Instance& instance, const Individual& individual) -> std:
       current_route.customers.push_back(gene);
       current_route.assigned_lockers.push_back(locker);
       current_route.load += client.demand;
-      current_route.total_distance += distance(previous_position, instance.lockers[(unsigned)locker].position);
-      previous_position = instance.lockers[(unsigned)locker].position;
+      current_route.total_distance += distance(previous_position, instance.lockers[(int)locker].position);
+      previous_position = instance.lockers[(int)locker].position;
       locker_remaining_capacities[(unsigned)locker] -= client.demand;
       std::cout << "adicionou locker: " << std::endl;
       add = true;
@@ -310,8 +287,7 @@ auto decode_individual(Instance& instance, const Individual& individual) -> std:
 auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned generations, double mutation_rate) -> Solution 
 {
   auto population = initialize_population(instance, population_size); //vertor de individuos
-  
-  // std::cout << "criou população inicial" << std::endl;
+
   Split split(instance);
   LocalSearch localSearch(instance);
 
@@ -333,20 +309,13 @@ auto genetic_algorithm(Instance& instance, unsigned population_size, unsigned ge
 
   }
 
-  // population[0].fitness = evaluate_fitness(decode_individual(population[0],instance),instance);
   auto* best_individual = &population[0];
   for (auto& individual : population) {
-    // individual.fitness = evaluate_fitness(decode_individual(individual,instance),instance);
     if (individual.fitness < best_individual->fitness) {
       best_individual = &individual;
     }
   }
 
-  // std::cout << "giant tour final: " << std::endl;
-  // for(int i = 0; i < best_individual->chromosome.size(); i++) {
-  //   std::cout << best_individual->chromosome[i] << " ";
-  // }
-  // std::cout << std::endl;
   auto best_routes = split.splitLinear(*best_individual);
   return Solution{best_routes, best_individual->fitness};
 }

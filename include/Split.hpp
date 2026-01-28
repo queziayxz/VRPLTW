@@ -16,7 +16,7 @@ struct DataRoute {
     double time = 0.0;
     double load = 0.0;
     bool isValid = true;
-    std::unordered_set<int> lockers;              // guarda os ids dos locker utilizados naquela rota
+    std::unordered_set<int> lockers{};                    // guarda os ids dos locker utilizados naquela rota
     std::vector<int> customers{};
 };
 
@@ -44,7 +44,7 @@ class Split {
         int indexDominates(int a, int b, int capacity);
         std::optional<DataRoute> calcDistanceRoute(int i, int j);
 
-        bool verifyBestLocker(Locker&locker, Point&prev, double cumulative_cost, double cumulativeDistance, std::unordered_set<int>&lockersUsed);
+        bool verifyBestLocker(Locker&locker, Point&prev, double cumulative_cost, double cumulativeDistance);
         bool verifyLocationLocker(Locker&locker, Client&clientB, std::unordered_set<int>&lockersUsed);
         std::optional<Locker> getBestLockerDistance(Client&client, std::unordered_set<int>&lockersUsed);
         std::optional<Locker> getLockerCommon(Client&clientA, Client&clientB, std::unordered_set<int>&lockersUsed);

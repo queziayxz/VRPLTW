@@ -20,7 +20,7 @@ Individual LocalSearch::iteratedGreedy(Individual individual, int destruction_ra
     
 
     Individual offspring{};
-    std::vector<int> indices((int)destruction_rate);
+    std::vector<int> indices((unsigned)destruction_rate);
     int it = 0;
     int maxIter = 5;
     int index = 0;
@@ -31,18 +31,18 @@ Individual LocalSearch::iteratedGreedy(Individual individual, int destruction_ra
         offspring = best;
         // index = Random::get_int(0u, (unsigned)individual.routes.size()-1u);
         
-        //destroi
+        // destroi
         for(int i = 0; i < destruction_rate; i++) {
-            indices[i] = offspring.chromosome[index];
-            offspring.chromosome.erase(offspring.chromosome.begin()+index);
+            indices[(unsigned)i] = offspring.chromosome[(unsigned)index];
+            offspring.chromosome.erase(offspring.chromosome.begin()+(unsigned)index);
         }
 
         // reconstroi com neh
         fitness = neh(offspring.chromosome,indices,best_fitness);
 
         // faz busca local com 2-opt best improvement
-        for(int i = 0; i < offspring.chromosome.size(); i++) {
-            for(int j = i+1; j < offspring.chromosome.size(); j++) {
+        for(int i = 0; i < static_cast<int>(offspring.chromosome.size()); i++) {
+            for(int j = i+1; j < static_cast<int>(offspring.chromosome.size()); j++) {
                 opt_2(offspring.chromosome,i,j);
                 fitness = fitnessFunction(offspring.chromosome);
                 if(fitness < best_fitness) {
@@ -71,20 +71,20 @@ Individual LocalSearch::iteratedGreedy(Individual individual, int destruction_ra
 double LocalSearch::neh(std::vector<int>&tour, std::vector<int> indices, double total_distance)
 {
     double aux_fitness = 0;
-    double best_indice = 1;
+    int best_indice = 1;
     double best_fitness = INF;
 
     // std::vector<std::tuple<double, double, double>> rede_pert = redePert(tour);
 
-    for(int i = 0; i < indices.size(); i++) {
-        for(int j = 1; j < tour.size()-1; j++) { // so verificar para o meio da tour e nao as extremidades
-            aux_fitness = calcDistanceNEH(tour,total_distance,j,indices[i]);
+    for(int i = 0; i < static_cast<int>(indices.size()); i++) {
+        for(int j = 1; j < static_cast<int>(tour.size()-1); j++) { // so verificar para o meio da tour e nao as extremidades
+            aux_fitness = calcDistanceNEH(tour,total_distance,j,indices[(unsigned)i]);
             if(aux_fitness < best_fitness) {
                 best_fitness = aux_fitness;
                 best_indice = j;
             }
         }
-        tour.insert(tour.begin()+best_indice+1,indices[i]);
+        tour.insert(tour.begin()+best_indice+1,indices[(unsigned)i]);
         total_distance = best_fitness;
         best_fitness = INF;
     }
@@ -99,7 +99,7 @@ void LocalSearch::opt_2(std::vector<int>&individual, int i, int j)
     int x = i < j ? i : j;
     int y = i > j ? i : j;
 
-    if(x >= 0 && y < individual.size()) {
+    if(x >= 0 && y < static_cast<int>(individual.size())) {
         while(x < y) {
             aux = individual[(unsigned)y];
             // aux_locker = indiv.lockers[(unsigned)y];
@@ -115,73 +115,67 @@ void LocalSearch::opt_2(std::vector<int>&individual, int i, int j)
     // return route;
 }
 
-std::vector<std::tuple<double, double, double>> LocalSearch::redePert(std::vector<int>& tour) {
-    // tuple: <TempoInicio, Espera, Folga>
-    std::vector<std::tuple<double, double, double>> rede(tour.size());
+// std::vector<std::tuple<double, double, double>> LocalSearch::redePert(std::vector<int>& tour) {
+//     // tuple: <TempoInicio, Espera, Folga>
+//     std::vector<std::tuple<double, double, double>> rede(tour.size());
 
-    // --- 1. FORWARD PASS (Início e Espera) ---
-    double chegada;
+//     // --- 1. FORWARD PASS (Início e Espera) ---
+//     double chegada;
     
-    // Primeiro Cliente (Depósito -> C1)
-    chegada = ::distance(this->instance.depot.position, this->instance.clients.at(tour[0]).position);
-    double t_inicio = std::max(chegada, this->instance.clients.at(tour[0]).time_window.start);
-    double espera = t_inicio - chegada; // Se chegou em 60 e abre 306, espera 246
-    rede[0] = std::make_tuple(t_inicio, espera, 0.0);
+//     // Primeiro Cliente (Depósito -> C1)
+//     chegada = ::distance(this->instance.depot.position, this->instance.clients.at(tour[0]).position);
+//     double t_inicio = std::max(chegada, this->instance.clients.at(tour[0]).time_window.start);
+//     double espera = t_inicio - chegada; // Se chegou em 60 e abre 306, espera 246
+//     rede[0] = std::make_tuple(t_inicio, espera, 0.0);
 
-    for (int i = 1; i < tour.size(); i++) {
-        // Chegada = Inicio do anterior + distância
-        chegada = std::get<0>(rede[i-1]) + ::distance(this->instance.clients.at(tour[i-1]).position, this->instance.clients.at(tour[i]).position);
+//     for (int i = 1; i < tour.size(); i++) {
+//         // Chegada = Inicio do anterior + distância
+//         chegada = std::get<0>(rede[i-1]) + ::distance(this->instance.clients.at(tour[i-1]).position, this->instance.clients.at(tour[i]).position);
         
-        t_inicio = std::max(chegada, this->instance.clients.at(tour[i]).time_window.start);
-        espera = t_inicio - chegada; // Espera é sempre Início - Chegada
+//         t_inicio = std::max(chegada, this->instance.clients.at(tour[i]).time_window.start);
+//         espera = t_inicio - chegada; // Espera é sempre Início - Chegada
         
-        rede[i] = std::make_tuple(t_inicio, espera, 0.0);
-    }
+//         rede[i] = std::make_tuple(t_inicio, espera, 0.0);
+//     }
 
-    // --- 2. BACKWARD PASS (Folga / Slack) ---
-    // A folga do último cliente é simplesmente o quanto falta para ele fechar
-    int n = tour.size() - 1;
-    double folga_propria = this->instance.clients.at(tour[n]).time_window.end - std::get<0>(rede[n]);
-    std::get<2>(rede[n]) = folga_propria;
+//     // --- 2. BACKWARD PASS (Folga / Slack) ---
+//     // A folga do último cliente é simplesmente o quanto falta para ele fechar
+//     int n = tour.size() - 1;
+//     double folga_propria = this->instance.clients.at(tour[n]).time_window.end - std::get<0>(rede[n]);
+//     std::get<2>(rede[n]) = folga_propria;
 
-    for (int i = n - 1; i >= 0; i--) {
-        folga_propria = this->instance.clients.at(tour[i]).time_window.end - std::get<0>(rede[i]);
+//     for (int i = n - 1; i >= 0; i--) {
+//         folga_propria = this->instance.clients.at(tour[i]).time_window.end - std::get<0>(rede[i]);
         
-        // A folga acumulada é o mínimo entre a minha folga e o que o próximo aguenta
-        // O próximo aguenta: a espera dele (amortecedor) + a folga dele
-        double espera_proximo = std::get<1>(rede[i+1]);
-        double folga_proximo = std::get<2>(rede[i+1]);
+//         // A folga acumulada é o mínimo entre a minha folga e o que o próximo aguenta
+//         // O próximo aguenta: a espera dele (amortecedor) + a folga dele
+//         double espera_proximo = std::get<1>(rede[i+1]);
+//         double folga_proximo = std::get<2>(rede[i+1]);
         
-        std::get<2>(rede[i]) = std::min(folga_propria, espera_proximo + folga_proximo);
-    }
+//         std::get<2>(rede[i]) = std::min(folga_propria, espera_proximo + folga_proximo);
+//     }
 
-    // --- 3. PRINT ---
-    for (int i = 0; i < tour.size(); i++) {
-        std::cout << "Cliente: " << tour[i] 
-                  << " | T: " << std::get<0>(rede[i]) 
-                  << " | Espera: " << std::get<1>(rede[i]) 
-                  << " | Folga: " << std::get<2>(rede[i]) << std::endl;
-    }
-}
+//     // --- 3. PRINT ---
+//     for (int i = 0; i < tour.size(); i++) {
+//         std::cout << "Cliente: " << tour[i] 
+//                   << " | T: " << std::get<0>(rede[i]) 
+//                   << " | Espera: " << std::get<1>(rede[i]) 
+//                   << " | Folga: " << std::get<2>(rede[i]) << std::endl;
+//     }
+// }
 double LocalSearch::calcDistanceNEH(std::vector<int>&tour, double total_distance, int index, int idClienteAdd)
 {
-    if(index == 0 || index == tour.size()-1) return total_distance;
+    if(index == 0 || index == static_cast<int>(tour.size()-1)) return total_distance;
 
-    Client clientA = this->instance.clients.at(tour[index]);
-    Client clientB = this->instance.clients.at(tour[index+1]);
+    Client clientA = this->instance.clients.at(tour[(unsigned)index]);
+    Client clientB = this->instance.clients.at(tour[(unsigned)index+1]);
     Client clientAdd = this->instance.clients.at(idClienteAdd);
 
     
     double distance_aresta = ::distance(clientA.position,clientB.position);
-    // std::cout << "distance " << clientA.id << " -> " << clientB.id << ": " << distance_aresta << std::endl;
-    // std::cout << "best fitess antes: " << total_distance << std::endl;
     total_distance -= distance_aresta;
-    // std::cout << "best fitess depois de retirar aresta: " << total_distance << std::endl;
-    
     total_distance += ::distance(clientA.position,clientAdd.position);
-    // std::cout << "best fitess depois de adicionar aresta A: " << total_distance << std::endl;
     total_distance += ::distance(clientB.position,clientAdd.position);
-    // std::cout << "best fitess depois de adicionar aresta B: " << total_distance << std::endl;
 
     return total_distance;
 }
@@ -190,25 +184,10 @@ double LocalSearch::fitnessFunction(std::vector<int> tour)
 {
     double distance = 0.0;
 
-    for(int i = 0; i < tour.size()-1; i++) {
-        distance += ::distance(this->instance.clients.at(tour[i]).position,
-                this->instance.clients.at(tour[i+1]).position);
+    for(int i = 0; i < static_cast<int>(tour.size()-1); i++) {
+        distance += ::distance(this->instance.clients.at(tour[(unsigned)i]).position,
+                this->instance.clients.at(tour[(unsigned)i+1]).position);
     }
 
     return distance;
 }
-
-// double evaluate_fitness(const std::vector<Route>& routes) 
-// {
-//   auto total_distance = 0.0;
-
-//   for (int i = 0; i < routes.size(); i++) {
-//     total_distance += routes[i].total_distance;
-//     for(int j = 0; j < routes[i].customers.size(); j++) {
-//       if(routes[i].assigned_lockers[j] != -1) {
-//         total_distance += 0.5 * ::distance(this->instance.clients.at(routes[i].customers[j]).position,this->instance.lockers.at(routes[i].assigned_lockers[j]).position);
-//       }
-//     }
-//   }
-//   return total_distance;
-// }
